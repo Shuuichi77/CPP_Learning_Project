@@ -6,22 +6,68 @@ Compilez et lancez le programme.
 
 Allez dans le fichier `tower_sim.cpp` et recherchez la fonction responsable de gérer les inputs du programme.
 Sur quelle touche faut-il appuyer pour ajouter un avion ?
+
+- C
+
 Comment faire pour quitter le programme ?
+
+- X ou Q
+
 A quoi sert la touche 'F' ?
+
+- Mettre en plein écran 
 
 Ajoutez un avion à la simulation et attendez.
 Que est le comportement de l'avion ?
+
+- L'avion se pose, puis décolle et tourne autour de l'aéroport. Au bout d'un certain temps, il va se reposer puis décoller, tourner autour de l'aéroport, puis se repose etc...
+
 Quelles informations s'affichent dans la console ?
+
+- La boucle consiste en ces 4 étapes :
+  - AF8977 is now landing...
+  - now servicing AF8977...
+  - done servicing AF8977
+  - AF8977 lift off
 
 Ajoutez maintenant quatre avions d'un coup dans la simulation.
 Que fait chacun des avions ?
+
+- Les 3 premiers se déposent ("X is now landing..."), se mettent en service ("now servicing X" et "done servicing X"), et décollent ("X lift off").\
+  Le 4ème avion peut ainsi se poser et se mettre en service.\
+  L'aéroport n'a que 3 places pour que les avions se déposent.
 
 ## B- Analyse du code
 
 Listez les classes du programme à la racine du dossier src/.
 Pour chacune d'entre elle, expliquez ce qu'elle représente et son rôle dans le programme.
 
+- Aircraft : 
+- AirportType : 
+- Airport : 
+- Terminal : 
+- TowerSimulation : 
+- Tower : 
+- Waypoint : 
+
 Pour les classes `Tower`, `Aircaft`, `Airport` et `Terminal`, listez leurs fonctions-membre publiques et expliquez précisément à quoi elles servent.
+
+- Tower : 
+  - 1
+  - 2
+  
+- Aircraft : 
+  - 1
+  - 2
+  
+- Airport : 
+  - 1
+  - 2
+  
+- Terminal : 
+  - 1
+  - 2
+
 Réalisez ensuite un schéma présentant comment ces différentes classes intéragissent ensemble.
 
 Quelles classes et fonctions sont impliquées dans la génération du chemin d'un avion ?
