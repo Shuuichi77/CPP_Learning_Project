@@ -43,36 +43,71 @@ Listez les classes du programme à la racine du dossier src/.
 Pour chacune d'entre elle, expliquez ce qu'elle représente et son rôle dans le programme.
 
 - Aircraft : 
+  - Fait tourner les avions correctement
+  - Signale la tour lorsqu'un avion arrive
+  - 
+
 - AirportType : 
+  - Créer les terminaux
+
 - Airport : 
+  - ...
+
 - Terminal : 
+  - ...
+
 - TowerSimulation : 
+  - ...
+
 - Tower : 
+  - ...
+
 - Waypoint : 
+  - ...
 
 Pour les classes `Tower`, `Aircaft`, `Airport` et `Terminal`, listez leurs fonctions-membre publiques et expliquez précisément à quoi elles servent.
 
 - Tower : 
-  - 1
-  - 2
+  - WaypointQueue get_circle() const;
+  - AircraftAndTerminalIter find_craft_and_terminal(const Aircraft& aircraft);
+  - WaypointQueue get_instructions(Aircraft& aircraft);
+  - void arrived_at_terminal(const Aircraft& aircraft);
   
 - Aircraft : 
-  - 1
-  - 2
+  - void turn_to_waypoint();
+  - void turn(Point3D direction);
+  - unsigned int get_speed_octant() const;
+  - void arrive_at_terminal();
+  - void operate_landing_gear();
+  - void add_waypoint(const Waypoint& wp, const bool front);
+  - bool is_on_ground() const;
+  - float max_speed() const;
+  - void display() const override;
+  - void move() override;
   
 - Airport : 
-  - 1
-  - 2
-  
+  - std::pair<WaypointQueue, size_t> reserve_terminal(Aircraft& aircraft);
+  - WaypointQueue start_path(const size_t terminal_number);
+
 - Terminal : 
   - 1
   - 2
 
 Réalisez ensuite un schéma présentant comment ces différentes classes intéragissent ensemble.
 
+- TODO
+
 Quelles classes et fonctions sont impliquées dans la génération du chemin d'un avion ?
+
+- TODO
+
 Quel conteneur de la librairie standard a été choisi pour représenter le chemin ?
+
+- TODO
+
 Expliquez les intérêts de ce choix.
+
+- TODO
 
 ## C- Bidouillons !
 
@@ -80,12 +115,24 @@ Expliquez les intérêts de ce choix.
 Le Concorde est censé pouvoir voler plus vite que les autres avions.
 Modifiez le programme pour tenir compte de cela.
 
+Vitesse concorde : cf. aircraft_types.hpp
+
+
 2) Identifiez quelle variable contrôle le framerate de la simulation.
 Ajoutez deux nouveaux inputs au programme permettant d'augmenter ou de diminuer cette valeur.
 Essayez maintenant de mettre en pause le programme en manipulant ce framerate. Que se passe-t-il ?\
 Ajoutez une nouvelle fonctionnalité au programme pour mettre le programme en pause, et qui ne passe pas par le framerate.
 
+framerate : cf. config.hpp
+vitesse des avions : void aircraft_move_faster(); void aircraft_move_slower();
+Si on essaye de mettre pause en mettant le framerate à 0, le programme crash (glutTimerFunc(1000u / ticks_per_sec, timer, step + 1) fait une division par 0)
+mettre pause : void pause();
+
+
 3) Identifiez quelle variable contrôle le temps de débarquement des avions et doublez-le.
+
+cf. config.hpp (SERVICE_CYCLES)
+
 
 4) Lorsqu'un avion a décollé, il réattérit peu de temps après.
 Faites en sorte qu'à la place, il soit retiré du programme.\
@@ -99,6 +146,8 @@ Que devez-vous modifier pour transmettre l'information de la première à la sec
 Il faut également penser à le supprimer de cette liste avant de le détruire.
 Faites en sorte que l'ajout et la suppression de `display_queue` soit "automatiquement gérée" lorsqu'un `Displayable` est créé ou détruit.
 Pourquoi n'est-il pas spécialement pertinent d'en faire de même pour `DynamicObject` ?
+
+
 
 6) La tour de contrôle a besoin de stocker pour tout `Aircraft` le `Terminal` qui lui est actuellement attribué, afin de pouvoir le libérer une fois que l'avion décolle.
 Cette information est actuellement enregistrée dans un `std::vector<std::pair<const Aircraft*, size_t>>` (size_t représentant l'indice du terminal).
