@@ -61,7 +61,7 @@ public:
     float distance_to(const Point3D& p) const { return pos.distance_to(p); }
 
     void display() const override;
-    void move() override;
+    bool move() override;
 
     friend class Tower;
 };
