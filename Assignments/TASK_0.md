@@ -117,16 +117,15 @@ Modifiez le programme pour tenir compte de cela.
 
 Vitesse concorde : cf. aircraft_types.hpp
 
-
 2) Identifiez quelle variable contrôle le framerate de la simulation.
 Ajoutez deux nouveaux inputs au programme permettant d'augmenter ou de diminuer cette valeur.
 Essayez maintenant de mettre en pause le programme en manipulant ce framerate. Que se passe-t-il ?\
 Ajoutez une nouvelle fonctionnalité au programme pour mettre le programme en pause, et qui ne passe pas par le framerate.
 
-framerate : cf. config.hpp
-vitesse des avions : void aircraft_move_faster(); void aircraft_move_slower();
-Si on essaye de mettre pause en mettant le framerate à 0, le programme crash (glutTimerFunc(1000u / ticks_per_sec, timer, step + 1) fait une division par 0)
-mettre pause : void pause();
+Framerate : cf. config.hpp\
+Vitesse des avions : cf. void aircraft_move_faster() et void aircraft_move_slower();\
+Si on essaye de mettre pause en mettant le framerate à 0, le programme crash (glutTimerFunc(1000u / ticks_per_sec, timer, step + 1) fait une division par 0)\
+Pause : void pause();
 
 
 3) Identifiez quelle variable contrôle le temps de débarquement des avions et doublez-le.
