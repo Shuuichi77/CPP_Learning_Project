@@ -68,7 +68,13 @@ target_compile_definitions(tower PRIVATE GLUT_DISABLE_ATEXIT_HACK)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 target_include_directories(tower SYSTEM PRIVATE ${OPENGL_INCLUDE_DIR})
-target_link_libraries(tower	PRIVATE ${OPENGL_LIBRARIES} stdc++fs)
+target_link_libraries(tower	PRIVATE ${OPENGL_LIBRARIES})
+
+
+## FileSystem
+if((${CMAKE_CXX_COMPILER_ID} MATCHES "GNU") AND (${CMAKE_CXX_COMPILER_VERSION} LESS 9))
+	target_link_libraries(tower	PRIVATE stdc++fs)
+endif()
 
 
 ##########
