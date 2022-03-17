@@ -1,4 +1,4 @@
-# Gestion des ressources
+# Gestion mémoire
 
 ## Analyse de la gestion des avions
 
@@ -44,8 +44,10 @@ Choisissez un type qui met bien en avant le fait que `AircraftManager` est propr
 
 Ajoutez un nouvel attribut `aircraft_manager` dans la classe `TowerSimulation`.
 
-Modifiez ensuite le code afin que `timer` passe forcément par le gestionnaire d'avions pour déplacer les avions.
-Faites le nécessaire pour que le gestionnaire supprime les avions après qu'ils aient décollé.
+Faites ce qu'il faut pour que le `AircraftManager` puisse appartenir à la liste `move_queue`.
+Ajoutez la fonction appropriée dans `AircraftManager` pour demander de bouger (`move`) les avions.
+Supprimez les ajouts d'`Aircraft` dans la `move_queue`. En effet, ce n'est plus `timer` qui est responsable de déplacer les avions mais l'`AircraftManager`.
+Faites le nécessaire pour que le gestionnaire supprime les avions après qu'ils soient partis de l'aéroport.
 
 Enfin, faites ce qu'il faut pour que `create_aircraft` donne l'avion qu'elle crée au gestionnaire.
 Testez que le programme fonctionne toujours.
@@ -64,7 +66,18 @@ La création des avions est faite à partir des composants suivants :
 
 Pour éviter l'usage de variables globales, vous allez créer une classe `AircraftFactory` dont le rôle est de créer des avions.
 
-Définissez cette classe, instanciez-la à l'endroit qui vous paraît le plus approprié, et refactorisez le code pour l'utiliser.
+Définissez cette classe, instanciez-là en tant que membre de `TowerSimulation` et refactorisez-le code pour l'utiliser.
+Vous devriez constater que le programme crashe.
+
+En effet, pour que la factory fonctionne, il faut que le `MediaPath` (avec la fonction `MediaPath::initialize`) et que `glut` (avec la fonction `init_gl()`) aient été initialisés.
+Comme ces appels sont faits depuis le corps du constructeur de `TowerSimulation`, ils sont actuellement exécutés après la construction de la factory.
+Afin de faire en sorte que les appels aient lieu dans le bon ordre, vous allez créer une structure `ContextInitializer` dans le fichier `tower_sim.hpp`.
+Vous lui ajouterez un constructeur dont le rôle sera d'appeler les fonctions d'initialisation de `MediaPath`, `glut` et `srand`.
+
+Vous pouvez maintenant ajoutez un attribut `context_initializer` de type `ContextInitializer` dans la classe `TowerSimulation`.
+A quelle ligne faut-il définir `context_initializer` dans `TowerSimulation` pour s'assurer que le constructeur de `context_initializer` est appelé avant celui de `factory` ?
+
+Refactorisez le restant du code pour utiliser votre factory.
 Vous devriez du coup pouvoir supprimer les variables globales `airlines` et `aircraft_types`.
 
 ### B - Conflits
@@ -96,7 +109,10 @@ On pourrait néanmoins avoir différents `AircraftType` qui utilisent les mêmes
 Ils seraient donc chargés plusieurs fois depuis le disque pour rien.
 
 Pour rendre le programme un peu plus performant, implémentez une classe `TexturePool` qui s'occupe de charger, stocker et fournir les textures.
-Réfléchissez bien au type que vous allez utiliser pour référencer les textures, afin d'exprimer correctement l'ownership.
+Pour exprimer correctement ce type d'ownership, vous devez utiliser le smart-pointer `std::shared_ptr`.
+
+Commencez par aller sur la documentation de `std::shared_ptr`.
+Pouvez-vous expliquer comment le compilateur arrive à déterminer à quel moment l'objet n'a plus aucun owner, afin de le détruire ?
 
 Listez les classes qui ont besoin de `TexturePool`.
 Sachant que vous n'aurez qu'une seule instance de `TexturePool` dans votre programme, quelle classe devra assumer l'ownership de cet objet ?\
