@@ -39,9 +39,9 @@ void TowerSimulation::create_aircraft(const AircraftType& type) const
     const Point3D start     = Point3D { std::sin(angle), std::cos(angle), 0 } * 3 + Point3D { 0, 0, 2 };
     const Point3D direction = (-start).normalize();
 
-    Aircraft* aircraft = new Aircraft { type, flight_number, start, direction, airport->get_tower() };
-    GL::display_queue.emplace_back(aircraft);
-    GL::move_queue.emplace(aircraft);
+    std::unique_ptr<Aircraft> aircraft =
+        std::make_unique<Aircraft>(type, flight_number, start, direction, airport->get_tower());
+    aircraftManager->emplace_aircraft(std::move(aircraft));
 }
 
 void TowerSimulation::create_random_aircraft() const
@@ -57,8 +57,8 @@ void TowerSimulation::create_keystrokes() const
     GL::keystrokes.emplace('+', []() { GL::change_zoom(0.95f); });
     GL::keystrokes.emplace('-', []() { GL::change_zoom(1.05f); });
     GL::keystrokes.emplace('f', []() { GL::toggle_fullscreen(); });
-    GL::keystrokes.emplace('a', []() { GL::aircraft_move_slower(); });
-    GL::keystrokes.emplace('z', []() { GL::aircraft_move_faster(); });
+    GL::keystrokes.emplace('a', []() { GL::decrease_framerate(); });
+    GL::keystrokes.emplace('z', []() { GL::increase_framerate(); });
     GL::keystrokes.emplace('p', []() { GL::pause(); });
 }
 
@@ -84,6 +84,12 @@ void TowerSimulation::init_airport()
     GL::move_queue.emplace(airport);
 }
 
+void TowerSimulation::init_aircraftManager()
+{
+    aircraftManager = new AircraftManager();
+    GL::move_queue.emplace(aircraftManager);
+}
+
 void TowerSimulation::launch()
 {
     if (help)
@@ -93,6 +99,7 @@ void TowerSimulation::launch()
     }
 
     init_airport();
+    init_aircraftManager();
     init_aircraft_types();
 
     GL::loop();

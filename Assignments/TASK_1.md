@@ -77,15 +77,40 @@ Pour simplifier le problème, vous allez déplacer l'ownership des avions dans l
 Ajoutez un attribut `aircrafts` dans le gestionnaire d'avions. Choisissez un type qui met bien en avant le fait
 que `AircraftManager` est propriétaire des avions.
 
+- `std::vector<std::unique_ptr<Aircraft>> aircrafts;`
+
 Ajoutez un nouvel attribut `aircraft_manager` dans la classe `TowerSimulation`.
 
-Faites ce qu'il faut pour que le `AircraftManager` puisse appartenir à la liste `move_queue`. Ajoutez la fonction
-appropriée dans `AircraftManager` pour demander de bouger (`move`) les avions. Supprimez les ajouts d'`Aircraft` dans
-la `move_queue`. En effet, ce n'est plus `timer` qui est responsable de déplacer les avions mais l'`AircraftManager`.
+- `AircraftManager* aircraftManager = nullptr;`
+
+Faites ce qu'il faut pour que le `AircraftManager` puisse appartenir à la liste `move_queue`.
+
+- On crée la fonction `TowerSimulation::init_aircraftManager()` qui se charge de créer et d'ajouter
+  notre `AircraftManager` dans `move_queue`. Puis on lance cette fonction dans `TowerSimulation::launch()` au même
+  moment qu'on initie notre `Airport` et nos `AircraftType`.
+
+Ajoutez la fonction appropriée dans `AircraftManager` pour demander de bouger (`move`) les avions.
+
+- cf. `AircraftManager::move()`.
+
+Supprimez les ajouts d'`Aircraft` dans la `move_queue`. En effet, ce n'est plus `timer` qui est responsable de déplacer
+les avions mais l'`AircraftManager`.
+
+- Dans la fonction `TowerSimulation::create_aircraft(const AircraftType& type)`, on enlève la
+  ligne `GL::move_queue.emplace(aircraft);`.
+
 Faites le nécessaire pour que le gestionnaire supprime les avions après qu'ils soient partis de l'aéroport.
+
+- Au lieu de supprimer les avions dans `timer()` comme on le faisait, on le fait dans notre nouvelle
+  fonction `AircraftManager::move()`. On n'a également plus besoin de `delete(*it);` puisqu'on a désormais
+  des `std::unique_ptr` qui se delete automatiquement.
 
 Enfin, faites ce qu'il faut pour que `create_aircraft` donne l'avion qu'elle crée au gestionnaire. Testez que le
 programme fonctionne toujours.
+
+- On crée désormais notre aircraft dans un `std::unique_ptr<Aircraft>` avec `std::make_unique<Aircraft>` ce qui va nous
+  permettre de donner l'ownership de l'aircraft qui vient d'être créé à notre aircraftManager avec la
+  fonction `AircraftManager::emplace_aircraft(std::unique_ptr<Aircraft> aircraft)` avec un `std::move()`.
 
 ---
 
