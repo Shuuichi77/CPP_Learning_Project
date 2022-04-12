@@ -81,7 +81,7 @@ que `AircraftManager` est propriétaire des avions.
 
 Ajoutez un nouvel attribut `aircraft_manager` dans la classe `TowerSimulation`.
 
-- `AircraftManager* aircraftManager = nullptr;`
+- `AircraftManager* aircraft_manager = nullptr;`
 
 Faites ce qu'il faut pour que le `AircraftManager` puisse appartenir à la liste `move_queue`.
 
@@ -109,7 +109,7 @@ Enfin, faites ce qu'il faut pour que `create_aircraft` donne l'avion qu'elle cr�
 programme fonctionne toujours.
 
 - On crée désormais notre aircraft dans un `std::unique_ptr<Aircraft>` avec `std::make_unique<Aircraft>` ce qui va nous
-  permettre de donner l'ownership de l'aircraft qui vient d'être créé à notre aircraftManager avec la
+  permettre de donner l'ownership de l'aircraft qui vient d'être créé à notre aircraft_manager avec la
   fonction `AircraftManager::emplace_aircraft(std::unique_ptr<Aircraft> aircraft)` avec un `std::move()`.
 
 ---
@@ -129,8 +129,18 @@ Pour éviter l'usage de variables globales, vous allez créer une classe `Aircra
 avions.
 
 Définissez cette classe, instanciez-là en tant que membre de `TowerSimulation` et refactorisez-le code pour l'utiliser.
-Vous devriez constater que le programme crashe.
 
+- On récupère le `aircraft_types` dans la struct `AircraftType` et le `airlines` dans `tower_sim.cpp` pour les mettre en
+  tant qu'attributs privés de notre classe `AircraftFactory`. Egalement, plutôt que d'initialiser nos `aircraft_types`
+  dans la fonction `init_aircraft_types()`, on les initialise dans le constructeur de `AircraftFactory`.\
+  Puis on crée une fonction `AircraftFactory::create_random_aircraft(Tower& tower)` qui va se charger de créer et
+  renvoyer un `std::unique_ptr<Aircraft>` parmi nos 3 types d'aircraft. Ainsi,
+  dans `TowerSimulation::create_random_aircraft()` (
+  anciennement `TowerSimulation::create_aircraft(const AircraftType& type)`), on va simplement
+  appeler `AircraftFactory::create_random_aircraft(Tower& tower)` pour créer notre aircraft pour le donner à notre
+  aircraft_manager.
+
+Vous devriez constater que le programme crashe.\
 En effet, pour que la factory fonctionne, il faut que le `MediaPath` (avec la fonction `MediaPath::initialize`) et
 que `glut` (avec la fonction `init_gl()`) aient été initialisés. Comme ces appels sont faits depuis le corps du
 constructeur de `TowerSimulation`, ils sont actuellement exécutés après la construction de la factory. Afin de faire en
@@ -138,18 +148,28 @@ sorte que les appels aient lieu dans le bon ordre, vous allez créer une structu
 fichier `tower_sim.hpp`. Vous lui ajouterez un constructeur dont le rôle sera d'appeler les fonctions d'initialisation
 de `MediaPath`, `glut` et `srand`.
 
+- On crée la struct `ContextInitializer` avec notre constructeur qui prend
+  un `ContextInitializer(int argc, char** argv)` pour initialiser `MediaPath`, `glut` et `srand`.
+
 Vous pouvez maintenant ajoutez un attribut `context_initializer` de type `ContextInitializer` dans la
 classe `TowerSimulation`. A quelle ligne faut-il définir `context_initializer` dans `TowerSimulation` pour s'assurer que
 le constructeur de `context_initializer` est appelé avant celui de `factory` ?
 
+- On définit notre `context_initializer` avant `aircraft_factory` pour que notre `ContextInitializer` soit initialisé
+  avant notre `AircraftFactory`.
+
 Refactorisez le restant du code pour utiliser votre factory. Vous devriez du coup pouvoir supprimer les variables
 globales `airlines` et `aircraft_types`.
+
+- cf. 1ère question de 2-A.
 
 ### B - Conflits
 
 Il est rare, mais possible, que deux avions soient créés avec le même numéro de vol. Ajoutez un conteneur dans votre
 classe `AircraftFactory` contenant tous les numéros de vol déjà utilisés. Faites maintenant en sorte qu'il ne soit plus
 possible de créer deux fois un avion avec le même numéro de vol.
+
+- TODO
 
 ### C - Data-driven AircraftType (optionnel)
 
