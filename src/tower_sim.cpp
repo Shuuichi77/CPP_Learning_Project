@@ -24,19 +24,18 @@ TowerSimulation::~TowerSimulation()
     delete airport;
 }
 
-void TowerSimulation::create_random_aircraft()
+void TowerSimulation::create_aircraft()
 {
     assert(airport); // make sure the airport is initialized before creating aircraft
-    auto aircraft = aircraft_factory.create_random_aircraft(airport->get_tower());
+    auto aircraft = aircraft_factory.create_aircraft(airport->get_tower());
     aircraft_manager.emplace_aircraft(std::move(aircraft));
-
 }
 
 void TowerSimulation::create_keystrokes()
 {
     GL::keystrokes.emplace('x', []() { GL::exit_loop(); });
     GL::keystrokes.emplace('q', []() { GL::exit_loop(); });
-    GL::keystrokes.emplace('c', [this]() { create_random_aircraft(); });
+    GL::keystrokes.emplace('c', [this]() { create_aircraft(); });
     GL::keystrokes.emplace('+', []() { GL::change_zoom(0.95f); });
     GL::keystrokes.emplace('-', []() { GL::change_zoom(1.05f); });
     GL::keystrokes.emplace('f', []() { GL::toggle_fullscreen(); });

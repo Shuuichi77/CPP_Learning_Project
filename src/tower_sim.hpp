@@ -30,7 +30,7 @@ private:
     TowerSimulation(const TowerSimulation&) = delete;
     TowerSimulation& operator=(const TowerSimulation&) = delete;
 
-    void create_random_aircraft();
+    void create_aircraft();
     void create_keystrokes();
     void display_help() const;
     void init_airport();

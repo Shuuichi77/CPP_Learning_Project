@@ -11,6 +11,9 @@ private:
 
     AircraftType* _aircraft_types[NUM_AIRCRAFT_TYPES] {};
     std::string _airlines[8] = { "AF", "LH", "EY", "DL", "KL", "BA", "AY", "EY" };
+
+    AircraftType& create_random_aircraft() const { return *(_aircraft_types[rand() % 3]); }
+
 public:
     AircraftFactory()
     {
@@ -19,5 +22,5 @@ public:
         _aircraft_types[2] = new AircraftType { .02f * 2, .05f * 2, .02f * 2, MediaPath { "concorde_af.png" }};
     }
 
-    std::unique_ptr<Aircraft> create_random_aircraft(Tower& tower);
+    std::unique_ptr<Aircraft> create_aircraft(Tower& tower);
 };
