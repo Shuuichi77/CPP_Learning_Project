@@ -11,6 +11,7 @@ private:
 
     AircraftType* _aircraft_types[NUM_AIRCRAFT_TYPES] {};
     std::string _airlines[8] = { "AF", "LH", "EY", "DL", "KL", "BA", "AY", "EY" };
+    std::unordered_set<std::string> _aircrafts_flight_numbers;
 
     AircraftType& create_random_aircraft() const { return *(_aircraft_types[rand() % 3]); }
 

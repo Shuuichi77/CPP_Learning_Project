@@ -133,11 +133,10 @@ Définissez cette classe, instanciez-là en tant que membre de `TowerSimulation`
 - On récupère le `aircraft_types` dans la struct `AircraftType` et le `airlines` dans `tower_sim.cpp` pour les mettre en
   tant qu'attributs privés de notre classe `AircraftFactory`. Egalement, plutôt que d'initialiser nos `aircraft_types`
   dans la fonction `init_aircraft_types()`, on les initialise dans le constructeur de `AircraftFactory`.\
-  Puis on crée une fonction `AircraftFactory::create_random_aircraft(Tower& tower)` qui va se charger de créer et
-  renvoyer un `std::unique_ptr<Aircraft>` parmi nos 3 types d'aircraft. Ainsi,
-  dans `TowerSimulation::create_random_aircraft()` (
-  anciennement `TowerSimulation::create_aircraft(const AircraftType& type)`), on va simplement
-  appeler `AircraftFactory::create_random_aircraft(Tower& tower)` pour créer notre aircraft pour le donner à notre
+  Puis on crée une fonction publique `AircraftFactory::create_aircraft(Tower& tower)` (et une
+  privée `create_random_aircraft()`) qui va se charger de créer et renvoyer un `std::unique_ptr<Aircraft>` parmi nos 3
+  types d'aircraft. Ainsi, dans `TowerSimulation::create_aircraft()`, on va simplement
+  appeler `AircraftFactory::create_aircraft(Tower& tower)` pour créer notre aircraft pour le donner à notre
   aircraft_manager.
 
 Vous devriez constater que le programme crashe.\
@@ -169,7 +168,11 @@ Il est rare, mais possible, que deux avions soient créés avec le même numéro
 classe `AircraftFactory` contenant tous les numéros de vol déjà utilisés. Faites maintenant en sorte qu'il ne soit plus
 possible de créer deux fois un avion avec le même numéro de vol.
 
-- TODO
+- On ajoute un `std::unordered_set<std::string> _aircrafts_flight_numbers` dans AircraftFactory et dans la
+  fonction `AircraftFactory::create_aircraft(Tower& tower)`, on randomise un flight_number jusqu'à que celui-ci n'existe
+  pas dans notre `_aircrafts_flight_numbers`.\
+  NB : Petit défaut néanmoins (voulu ?) puisqu'un avion ne peut pas prendre le nom d'un avion supprimé puisqu'il
+  faudrait que lors de la suppression d'un aircraft, on supprime également son numéro de vol dans notre set.
 
 ### C - Data-driven AircraftType (optionnel)
 
