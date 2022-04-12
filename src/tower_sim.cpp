@@ -30,7 +30,7 @@ TowerSimulation::~TowerSimulation()
     delete airport;
 }
 
-void TowerSimulation::create_aircraft(const AircraftType& type) const
+void TowerSimulation::create_aircraft(const AircraftType& type)
 {
     assert(airport); // make sure the airport is initialized before creating aircraft
 
@@ -41,15 +41,15 @@ void TowerSimulation::create_aircraft(const AircraftType& type) const
 
     std::unique_ptr<Aircraft> aircraft =
         std::make_unique<Aircraft>(type, flight_number, start, direction, airport->get_tower());
-    aircraftManager->emplace_aircraft(std::move(aircraft));
+    aircraftManager.emplace_aircraft(std::move(aircraft));
 }
 
-void TowerSimulation::create_random_aircraft() const
+void TowerSimulation::create_random_aircraft()
 {
     create_aircraft(*(aircraft_types[rand() % 3]));
 }
 
-void TowerSimulation::create_keystrokes() const
+void TowerSimulation::create_keystrokes()
 {
     GL::keystrokes.emplace('x', []() { GL::exit_loop(); });
     GL::keystrokes.emplace('q', []() { GL::exit_loop(); });
@@ -86,8 +86,7 @@ void TowerSimulation::init_airport()
 
 void TowerSimulation::init_aircraftManager()
 {
-    aircraftManager = new AircraftManager();
-    GL::move_queue.emplace(aircraftManager);
+    GL::move_queue.emplace(&aircraftManager);
 }
 
 void TowerSimulation::launch()
