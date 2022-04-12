@@ -194,9 +194,12 @@ Expliquez les intérêts de ce choix.
 1) Déterminez à quel endroit du code sont définies les vitesses maximales et accélération de chaque avion. Le Concorde
    est censé pouvoir voler plus vite que les autres avions. Modifiez le programme pour tenir compte de cela.
 
-Vitesse concorde : cf. aircraft_types.hpp
-
-TODO : expliquer plus
+La vitesse de nos 3 types d'avions se situent dans le fichier aircraft_types.hpp., dans la
+fonction `init_aircraft_types()`.\
+Si on veut modifier la vitesse du concorde, on modifie les variables qui y sont (le concorde correspond
+à `aircraft_types[2]` comme nous l'indique le nom de l'image utilisée pour afficher l'avion), la 1ère correspondant à sa
+vitesse au sol, la seconde à sa vitesse dans les airs et la 3ème son accélération.\
+J'ai multiplié par 2 toutes les vitesses qui étaient initialement.
 
 2) Identifiez quelle variable contrôle le framerate de la simulation. Ajoutez deux nouveaux inputs au programme
    permettant d'augmenter ou de diminuer cette valeur. Essayez maintenant de mettre en pause le programme en manipulant
@@ -204,36 +207,75 @@ TODO : expliquer plus
    Ajoutez une nouvelle fonctionnalité au programme pour mettre le programme en pause, et qui ne passe pas par le
    framerate.
 
-Framerate : cf. config.hpp\
-Vitesse des avions : cf. void aircraft_move_faster() et void aircraft_move_slower();\
-Si on essaye de mettre pause en mettant le framerate à 0, le programme crash (glutTimerFunc(1000u / ticks_per_sec,
-timer, step + 1) fait une division par 0)\
-Pause : void pause();
-
-TODO : expliquer
+C'est la variable `ticks_per_sec` dans le fichier `opengl_interface.hpp` qui contrôle le framerate de la simulation (
+avec sa valeur par défaut `DEFAULT_TICKS_PER_SEC` dans `config.hpp`).\
+Pour augmenter/diminuer le framerate, on ajoute les fonctions `increase_framerate()`/`decrease_framerate()`
+dans `opengl_interface.cpp` et dans `TowerSimulation::create_keystrokes()`, on associe 2 nouveaux inputs 'a' et 'z' pour
+utiliser ces fonctions.\
+Si on essaye de mettre pause en mettant le framerate à 0, le programme crash : la fonction `timer(const int step)` dans
+`opengl_interface.cpp` effectue une division par 0 (glutTimerFunc(1000u / ticks_per_sec, timer, step + 1)).\
+Pour introduire la pause, on ajoute le boolean `is_pause` dans `opengl_interface.hpp` qui passe de false à true chaque
+fois qu'on va appuyer sur la touche 'p'. Et dans la fonction `timer(const int step)`, on effectue `move()` sur les
+éléments de `move_queue` seulement si `is_pause` est false.
 
 3) Identifiez quelle variable contrôle le temps de débarquement des avions et doublez-le.
 
-cf. config.hpp (SERVICE_CYCLES)
-
-TODO : expliquer
+Le temps de débarquement des avions correspond au temps que passent les avions dans chaque terminal. Un avion finit son
+débarquement dans un terminal tant que `service_progress < SERVICE_CYCLES` et la variable `service_progress` est
+incrémentée à chaque fois que `Terminal::move()` est appelée.\
+Ainsi, pour doubler le temps de débarquement, on double la valeur de `SERVICE_CYCLES` dans `config.hpp`.
 
 4) Lorsqu'un avion a décollé, il réattérit peu de temps après. Faites en sorte qu'à la place, il soit retiré du
    programme.\
    Indices :\
    A quel endroit pouvez-vous savoir que l'avion doit être supprimé ?\
-   Pourquoi n'est-il pas sûr de procéder au retrait de l'avion dans cette fonction ? A quel endroit de la callstack
-   pourriez-vous le faire à la place ?\
-   Que devez-vous modifier pour transmettre l'information de la première à la seconde fonction ?
+    - Une fois que l'aircraft a fini d'être entretenu par un terminal. On vérifie cet état dans la
+      fonction `Tower::get_instructions(Aircraft& aircraft)`.
 
-TODO : expliquer
+   Pourquoi n'est-il pas sûr de procéder au retrait de l'avion dans cette fonction ?
+    - On utiliser cette fonction afin de retourner un `WaypointQueue` à un `Aircraft` dans sa
+      fonction `Aircraft::move()` afin d'actualiser son `waypoints` pour que celui-ci sache où il doit aller.\
+      Or si on supprime l'aircraft dans la fonction `Tower::get_instructions(Aircraft& aircraft)`, alors on va supprimer
+      l'aircraft alors qu'on était en plein appel de sa fonction `Aircraft::move()`.
+
+   A quel endroit de la callstack pourriez-vous le faire à la place ?\
+    - Lorsqu'on appelle la fonction `move()` sur chacun des aircrafts dans la fonction `timer(const int step)`
+      de `opengl_interface.cpp`, on aimerait savoir si un aircraft vient de partir d'un terminal et ainsi le supprimer
+      si c'est le cas.
+
+   Que devez-vous modifier pour transmettre l'information de la première à la seconde fonction ?
+    - On pourrait utiliser un boolean retourner par la fonction `move()` qui renvoie true si l'aircraft vient de partir
+      d'un terminal, ce qui signifierait qu'on doit supprimer celui-ci.
+
+Pour supprimer un aircraft, on va donc modifier la fonction `move()` dans `dynamic_object.hpp` : au lieu de retourner
+void, on va désormais retourner un bool.\
+De ce fait, on modifie les différentes implémentations de cette fonction dans les classes `Aircraft`, `Airport` et
+`Terminal`.\
+Dans `Airport` et `Terminal`, on renvoie toujours `true` à la fin de la fonction.\
+Dans `Aircraft`, on doit faire en sorte de renvoyer `false` dès lors que l'aircraft est passé dans un terminal. Donc si
+celui-ci n'est pas encore allé dans un terminal, mais qu'il n'a pas encore de waypoints (donc typiquement au moment où
+il est crée), on ne doit pas le supprimer.\
+Pour cela, on va faire en sorte que l'instruction `waypoints = control.get_instructions(*this);` renvoie
+un `WaypointQueue` vide si l'aircraft est passé par un terminal. Puis à l'instruction suivante, lorsqu'on va vérifie si
+l'aircraft n'est pas dans un terminal, on va également vérifier si son `waypoints` est empty, auquel cas cela voudra
+dire que le get_instructions() plus haut a renvoyé un `WaypointQueue` vide pour nous avertir que l'aircraft est déjà
+passé par un terminal et qu'on peut donc le supprimer.\
+Dans `Tower::get_instructions(Aircraft& aircraft)`, on remarque lorsqu'un aircraft est trop loin de l'aéroport (le else
+de `aircraft.distance_to(airport.pos) < 5`), on lui renvoie `get_circle()` afin qu'il fasse un tour de l'aéroport. Or,
+un aircraft se situe seulement au-delà de cette distance seulement lorsqu'il fait le chemin retourné
+par `terminal_to_air(const Point3D& offset, const size_t runway_num, const size_t terminal_num)`, donc lorsqu'un
+aircraft quitte un terminal pour retourner dans les airs. On va donc retourner à cet endroit un `WaypointQueue` vide
+plutôt que `get_circle()`.
 
 5) Lorsqu'un objet de type `Displayable` est créé, il faut ajouter celui-ci manuellement dans la liste des objets à
    afficher. Il faut également penser à le supprimer de cette liste avant de le détruire. Faites en sorte que l'ajout et
    la suppression de `display_queue` soit "automatiquement gérée" lorsqu'un `Displayable` est créé ou détruit. Pourquoi
    n'est-il pas spécialement pertinent d'en faire de même pour `DynamicObject` ?
 
-TODO : expliquer
+Pour faire en sorte d'ajouter un `Displayable` à `display_queue` à sa creation, on ajoute dans son constructeur
+l'instruction pour s'ajouter lui-même dans `display_queue`.\
+Pour la suppression, dans le destructeur virtuel de `Displayable`, on fait en sorte que le l'objet `Displayable` qui se
+fait delete se supprime également de la `display_queue` au même moment.
 
 6) La tour de contrôle a besoin de stocker pour tout `Aircraft` le `Terminal` qui lui est actuellement attribué, afin de
    pouvoir le libérer une fois que l'avion décolle. Cette information est actuellement enregistrée dans
@@ -244,19 +286,30 @@ TODO : expliquer
    Modifiez le code afin d'utiliser un conteneur STL plus adapté. Normalement, à la fin, la
    fonction `find_craft_and_terminal(const Aicraft&)` ne devrait plus être nécessaire.
 
-TODO : expliquer
+Dans `tower.hpp`, au lieu d'utiliser un `std::vector<std::pair<const Aircraft*, size_t>>;`, on va utiliser
+une `std::unordered_map<const Aircraft*, size_t>`.\
+Puis on change les appels à la fonction `find_craft_and_terminal(const Aicraft&)`
+en `reserved_terminals.find(&aircraft)` (et pour ajouter un élément, on utilise `emplace()` plutôt que `emplace_back()`)
+.
 
 ## D- Théorie
 
 1) Comment a-t-on fait pour que seule la classe `Tower` puisse réserver un terminal de l'aéroport ?
 
-TODO : expliquer
+Dans la classe `Airport`, on a déclaré `friend class Tower;`, ce qui signifie que la classe `Tower` peut accéder aux
+champs et fonctions privés de la classe `Airport`, plus particulièrement à la fonction
+privé `Airport::reserve_terminal(Aircraft& aircraft)` qui permet de réserver un terminal de l'aéroport.
 
 2) En regardant le contenu de la fonction `void Aircraft::turn(Point3D direction)`, pourquoi selon-vous ne sommes-nous
    pas passer par une réference constante ? Pensez-vous qu'il soit possible d'éviter la copie du `Point3D` passé en
    paramètre ?
 
-TODO : expliquer
+Pour éviter de pouvoir modifier directement la valeur de la direction passée en paramètre puisque
+dans `void Aircraft::turn(Point3D direction)`, on appelle la fonction `Point3D::cap_length(const float max_len)` qui
+modifie la valeur du Point3D.\
+Etant donné qu'on veut seulement modifier "temporairement" (puisqu'on veut retrouver sa valeur de base par la suite) la
+valeur de la direction (qui est soi-disant l'addition de 3 différentes valeurs : target, pos et speed), on est obligé de
+copier le paramètre.
 
 ## E- Bonus
 
