@@ -51,9 +51,23 @@ Répondez aux questions suivantes :
 
 1. Qui est responsable de détruire les avions du programme ? (si vous ne trouvez pas, faites/continuez la question 4
    dans TASK_0)
+
+- On supprime les avions dans la fonction `timer(const int step)` de `opengl_interface.cpp`.
+
 2. Quelles autres structures contiennent une référence sur un avion au moment où il doit être détruit ?
+
+- `move_queue` et `display_queue`
+
 3. Comment fait-on pour supprimer la référence sur un avion qui va être détruit dans ces structures ?
+
+- `display_queue` : `delete(*it);` dans `timer(const int step)` (donc le destructeur virtuel dans `Displayable`).
+  `move_queue` : `it = move_queue.erase(it);` dans `timer(const int step)`
+
 4. Pourquoi n'est-il pas très judicieux d'essayer d'appliquer la même chose pour votre `AircraftManager` ?
+
+- Puisque `AircraftManager` aura une référence sur tous les avions du programme, c'est également mieux si c'est lui qui
+  se charge de supprimer les avions. Dans le cas contraire, au moment où on supprime l'aircraft dans nos 2 queue, on
+  doit également le supprimer dans notre `AircraftManager` : autant tout faire au même endroit.
 
 Pour simplifier le problème, vous allez déplacer l'ownership des avions dans la classe `AircraftManager`. Vous allez
 également faire en sorte que ce soit cette classe qui s'occupe de déplacer les avions, et non plus la fonction `timer`.
