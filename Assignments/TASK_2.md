@@ -10,18 +10,21 @@ remplacez `const auto& ks_pair` par un structured binding adapté.
 Si vous ne savez plus ce qu'est un structured binding,
 le [chapitre 6](https://laefy.github.io/CPP_Learning/chapter6/1-searches/) est votre ami (Google aussi d'ailleurs).
 
+- On remplace simplement le `const auto& ks_pair` par `[key, _]` puisque seul la clé nous intéresse
+
 ### B - Algorithmes divers
 
 1. `AircraftManager::move()` supprime les avions de la `move_queue` dès qu'ils sont "hors jeux". En pratique, il y a des
    opportunités pour des pièges ici. Pour les éviter, `<algorithm>` met à disposition la fonction `std::remove_if`.
    Remplacez votre boucle avec un appel à `std::remove_if`.
 
-**Attention**: pour cela, il est nécessaire que `AircraftManager` stocke les avion dans un `std::vector` ou `std::list`.
+**Attention**: pour cela, il est nécessaire que `AircraftManager` stocke les avions dans un `std::vector` ou `std::list`
+.
 
 2. Pour des raisons de statistiques, on aimerait bien être capable de compter tous les avions de chaque airline. A cette
-   fin, rajoutez des callbacks sur les touches `0`..`7` de manière à ce que le nombre d'avions appartenant
-   à `airlines[x]` soit affiché en appuyant sur `x`. Rendez-vous compte de quelle classe peut acquérir cet information.
-   Utilisez la bonne fonction de `<algorithm>` pour obtenir le résultat.
+   fin, rajoutez des callbacks sur les touches `0`..`7` de manière que le nombre d'avions appartenant à `airlines[x]`
+   soit affiché en appuyant sur `x`. Rendez-vous compte de quelle classe peut acquérir cette information. Utilisez la
+   bonne fonction de `<algorithm>` pour obtenir le résultat.
 
 ### C - Relooking de Point3D
 
