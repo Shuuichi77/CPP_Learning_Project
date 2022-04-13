@@ -14,7 +14,7 @@ class Terminal;
 class Tower
 {
 private:
-    using AircraftToTerminal      = std::unordered_map<const Aircraft*, size_t>;
+    using AircraftToTerminal = std::unordered_map<const Aircraft*, size_t>;
 
     Airport& airport;
     // aircrafts may reserve a terminal
@@ -22,11 +22,12 @@ private:
     AircraftToTerminal reserved_terminals = {};
 
     WaypointQueue get_circle() const;
-
 public:
-    Tower(Airport& airport_) : airport { airport_ } {}
+    Tower(Airport& airport_)
+            : airport { airport_ } {}
 
     // produce instructions for aircraft
     WaypointQueue get_instructions(Aircraft& aircraft);
     void arrived_at_terminal(const Aircraft& aircraft);
+    WaypointQueue reserve_terminal(Aircraft& aircraft);
 };

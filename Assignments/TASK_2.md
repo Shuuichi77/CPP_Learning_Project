@@ -118,17 +118,42 @@ un terminal tant qu'ils n'en n'ont pas (au lieu de ne demander que lorsqu'ils on
 
 1. Introduisez une fonction `bool Aircraft::has_terminal() const` qui indique si un terminal a déjà été réservé pour
    l'avion (vous pouvez vous servir du type de `waypoints.back()`).
+
+- On regarde d'abord si le conteneur `waypoints` n'est pas vide (sinon on ne peut pas réaliser l'opération suivante),
+  puis si `waypoints.back().is_at_terminal()`, auquel cas le dernier waypoint de l'aircraft se situe au terminal, ce qui
+  signifie que l'aircraft a bien réservé un terminal.
+
 2. Ajoutez une fonction `bool Aircraft::is_circling() const` qui indique si l'avion attend qu'on lui assigne un terminal
-   pour pouvoir attérir.
+   pour pouvoir atterrir.
+
+- Si un aircraft n'a pas de terminal (`!has_terminal()`), alors il attend qu'on lui assigne un terminal.\
+  Cependant, il existe un cas où l'aircraft n'attend pas qu'on lui assigne un terminal (en dehors du fait qu'il en ait
+  déjà un) : lorsqu'il est en train de sortir d'un terminal, à priori il ne voudra pas retourner dans un terminal. Or,
+  son dernier waypoint sera de type `wp_air` (cf. `AirportType::terminal_to_air(...)`) auquel cas
+  l'instruction `!has_terminal()` va renvoyer `true`, ce qu'on ne veut pas.\
+  C'est pourquoi j'ai introduit un nouvel attribut à la classe `Aircraft` nommé `bool is_leaving_terminal` qui est
+  initialisé à `false` et qui sera changer à `true` uniquement dans la
+  fonction `Tower::get_instructions(Aircraft& aircraft)` lorsqu'on check si l'aircraft a fini d'être entretenu par un
+  terminal. Si c'est le cas, alors on peut mettre l'attribut à `true`.
+
 3. Introduisez une fonction `WaypointQueue Tower::reserve_terminal(Aircraft& aircraft)` qui essaye de réserver
    un `Terminal`. Si c'est possible, alors elle retourne un chemin vers ce `Terminal`, et un chemin vide autrement (vous
    pouvez vous inspirer / réutiliser le code de `Tower::get_instructions`).
+
+- On écrit plus ou moins la même chose que dans `Tower::get_instructions` à l'exception près qu'on fait toujours
+  le `return vp.first` puisque celui-ci retournera de lui-même un chemin vide si on ne peut pas réserver de terminal.
+
 4. Modifiez la fonction `move()` de `Aircraft` afin qu'elle appelle `Tower::reserve_terminal` si l'avion est en attente.
    Si vous ne voyez pas comment faire, vous pouvez essayer d'implémenter ces instructions :\
    \- si l'avion a terminé son service et sa course, alors on le supprime de l'aéroport (comme avant),\
    \- si l'avion attend qu'on lui assigne un terminal, on appelle `Tower::reserve_terminal` et on modifie
    ses `waypoints` si le terminal a effectivement pu être réservé,\
    \- si l'avion a terminé sa course actuelle, on appelle `Tower::get_instructions` (comme avant).
+
+- Après avoir testé si le niveau du fuel est à zéro, on check si l'aircraft attend qu'on lui assigne un
+  terminal (`is_circling()`) auquel cas on essaye de lui réserver un terminal avec `Tower::reserve_terminal` et si la
+  fonction ne retourne pas de chemin vide, alors on assigne ce nouveau chemin à l'aircraft afin qu'il se rende au
+  terminal qu'il a réservé.
 
 ### C - Minimiser les crashs
 

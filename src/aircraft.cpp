@@ -96,6 +96,17 @@ bool Aircraft::move()
         return false;
     }
 
+    // If aircraft is waiting, try to reserve a terminal
+    if (is_circling())
+    {
+        WaypointQueue terminal_waypoints = control.reserve_terminal(*this);
+
+        if (!terminal_waypoints.empty())
+        {
+            waypoints = std::move(terminal_waypoints);
+        }
+    }
+
     if (waypoints.empty())
     {
         waypoints = control.get_instructions(*this);
@@ -155,4 +166,14 @@ bool Aircraft::move()
 void Aircraft::display() const
 {
     type.texture.draw(project_2D(pos), { PLANE_TEXTURE_DIM, PLANE_TEXTURE_DIM }, get_speed_octant());
+}
+
+bool Aircraft::has_terminal() const
+{
+    return !waypoints.empty() && waypoints.back().is_at_terminal();
+}
+
+bool Aircraft::is_circling() const
+{
+    return !has_terminal() && !is_leaving_terminal;
 }
