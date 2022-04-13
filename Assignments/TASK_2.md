@@ -119,22 +119,35 @@ un terminal tant qu'ils n'en n'ont pas (au lieu de ne demander que lorsqu'ils on
 1. Introduisez une fonction `bool Aircraft::has_terminal() const` qui indique si un terminal a déjà été réservé pour
    l'avion (vous pouvez vous servir du type de `waypoints.back()`).
 
-- On regarde d'abord si le conteneur `waypoints` n'est pas vide (sinon on ne peut pas réaliser l'opération suivante),
-  puis si `waypoints.back().is_at_terminal()`, auquel cas le dernier waypoint de l'aircraft se situe au terminal, ce qui
-  signifie que l'aircraft a bien réservé un terminal.
+- L'aircraft qui utilise la fonction `has_terminal()` regarde s'il existe dans la map `reserved_terminals` de `Tower`
+  avec un `std::find` (on crée au passage un getter pour la map). Si c'est le cas, un terminal a déjà été réservé pour
+  l'aircraft.\
+  **NB :** on n'utilise pas `waypoints.back().is_at_terminal()` comme conseillé car cela peut poser problème quand un
+  aircraft attend de finir son service/entretien dans un terminal : dans ce cas précis, l'aircraft a son `waypoints`
+  vide, donc `has_terminal()` renvoie `false` alors que l'aircraft est dans un terminal. On pourrait aussi introduire un
+  bool mais j'en parle dans le NB2 de la question suivante.
 
 2. Ajoutez une fonction `bool Aircraft::is_circling() const` qui indique si l'avion attend qu'on lui assigne un terminal
    pour pouvoir atterrir.
 
-- Si un aircraft n'a pas de terminal (`!has_terminal()`), alors il attend qu'on lui assigne un terminal.\
-  Cependant, il existe un cas où l'aircraft n'attend pas qu'on lui assigne un terminal (en dehors du fait qu'il en ait
-  déjà un) : lorsqu'il est en train de sortir d'un terminal, à priori il ne voudra pas retourner dans un terminal. Or,
-  son dernier waypoint sera de type `wp_air` (cf. `AirportType::terminal_to_air(...)`) auquel cas
-  l'instruction `!has_terminal()` va renvoyer `true`, ce qu'on ne veut pas.\
+- Dans un premier temps, on sait que si un aircraft n'a pas de terminal (`!has_terminal()`), alors il attend qu'on lui
+  assigne un terminal.\
+  Cependant, il existe un cas où l'aircraft n'a pas de terminal et n'attend pas qu'on lui en assigne un : lorsqu'il est
+  en train de sortir d'un terminal puisqu'à priori on ne veut pas qu'un aircraft retourne dans un terminal.\
   C'est pourquoi j'ai introduit un nouvel attribut à la classe `Aircraft` nommé `bool is_leaving_terminal` qui est
-  initialisé à `false` et qui sera changer à `true` uniquement dans la
-  fonction `Tower::get_instructions(Aircraft& aircraft)` lorsqu'on check si l'aircraft a fini d'être entretenu par un
-  terminal. Si c'est le cas, alors on peut mettre l'attribut à `true`.
+  initialisé à `false` et qui sera changé à `true` uniquement dans la
+  fonction `Tower::get_instructions(Aircraft& aircraft)` (`Tower` qui a accès aux champs privés de `Aircraft` vu qu'il
+  est friend class) lorsqu'on check si l'aircraft a fini son service/entretien dans un terminal. Si c'est le cas, alors
+  on peut mettre l'attribut à `true`.\
+  **NB :** A noter que je n'ai pas trouvé d'autres moyens pour déterminer qu'un aircraft est sur son chemin "terminal to
+  air" à part introduire un attribut bool à `Aircraft`. En effet, quand il emprunte ce chemin, son dernier waypoint sera
+  de type `wp_air` (cf. `AirportType::terminal_to_air(...)`) donc on ne peut pas se servir du type de `waypoints.back()`
+  .
+  **NB2:** Il est vrai qu'en introduisant un nouvel attribut, on pourrait faire en sorte que celui-ci check si un
+  aircraft a déjà eu un terminal (`bool had_terminal` qu'on met à `true` dès lors qu'un aircraft réserve un terminal)
+  ce qui nous permettrait d'utiliser cet attribut dans `bool Aircraft::has_terminal() const` et donc de se passer
+  du `std::find`. Mais le principe de l'exercice étant d'utiliser les fonctions d'`<algorithm>` ou de `<numeric>`, je
+  n'ai pas utilisé cette idée.
 
 3. Introduisez une fonction `WaypointQueue Tower::reserve_terminal(Aircraft& aircraft)` qui essaye de réserver
    un `Terminal`. Si c'est possible, alors elle retourne un chemin vers ce `Terminal`, et un chemin vide autrement (vous

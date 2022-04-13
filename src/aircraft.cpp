@@ -96,7 +96,7 @@ bool Aircraft::move()
         return false;
     }
 
-    // If aircraft is waiting, try to reserve a terminal
+    // If aircraft is waiting for a terminal, try to reserve a terminal
     if (is_circling())
     {
         WaypointQueue terminal_waypoints = control.reserve_terminal(*this);
@@ -170,7 +170,7 @@ void Aircraft::display() const
 
 bool Aircraft::has_terminal() const
 {
-    return !waypoints.empty() && waypoints.back().is_at_terminal();
+    return control.get_reserved_terminals().find(this) != control.get_reserved_terminals().end();
 }
 
 bool Aircraft::is_circling() const
