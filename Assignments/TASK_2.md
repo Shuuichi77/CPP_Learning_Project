@@ -21,10 +21,25 @@ le [chapitre 6](https://laefy.github.io/CPP_Learning/chapter6/1-searches/) est v
 **Attention**: pour cela, il est nécessaire que `AircraftManager` stocke les avions dans un `std::vector` ou `std::list`
 .
 
+- On remplace notre boucle `for` par :
+
+```cpp
+aircrafts.erase(std::remove_if(aircrafts.begin(), aircrafts.end(), 
+                               [](const std::unique_ptr<Aircraft>& aircraft) { return !aircraft->move(); }), 
+                aircrafts.end());
+```
+
 2. Pour des raisons de statistiques, on aimerait bien être capable de compter tous les avions de chaque airline. A cette
    fin, rajoutez des callbacks sur les touches `0`..`7` de manière que le nombre d'avions appartenant à `airlines[x]`
    soit affiché en appuyant sur `x`. Rendez-vous compte de quelle classe peut acquérir cette information. Utilisez la
    bonne fonction de `<algorithm>` pour obtenir le résultat.
+
+- C'est la classe `AircraftFactory` qui a accès à l'array `_airlines`, c'est donc à cette classe qu'on va donner ce
+  rôle.\
+  On va donc rajouter la fonction `AircraftFactory::print_nb_airline(int n) const` qui va afficher le nombre d'avions de
+  l'airline `n` à l'aide d'un `std::count_if` sur son `_aircrafts_flight_numbers`.\
+  Puis dans `TowerSimulation::create_keystrokes()`, on rajoute les keystrokes nécessaires pour afficher le nombre
+  d'avions appartenant à l'airline `n` de 0 à 7.
 
 ### C - Relooking de Point3D
 

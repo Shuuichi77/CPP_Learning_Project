@@ -42,6 +42,11 @@ void TowerSimulation::create_keystrokes()
     GL::keystrokes.emplace('a', []() { GL::decrease_framerate(); });
     GL::keystrokes.emplace('z', []() { GL::increase_framerate(); });
     GL::keystrokes.emplace('p', []() { GL::pause(); });
+
+    for (int i = 0 ; i < 8 ; ++i)
+    {
+        GL::keystrokes.emplace(char(i + 48), [this, i]() { aircraft_factory.print_nb_airline(i); });
+    }
 }
 
 void TowerSimulation::display_help() const

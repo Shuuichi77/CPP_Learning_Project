@@ -2,6 +2,7 @@
 
 #include "aircraft.hpp"
 
+#include <algorithm>
 #include <string>
 
 class AircraftFactory
@@ -10,7 +11,7 @@ private:
     static constexpr size_t NUM_AIRCRAFT_TYPES = 3;
 
     AircraftType* _aircraft_types[NUM_AIRCRAFT_TYPES] {};
-    std::string _airlines[8] = { "AF", "LH", "EY", "DL", "KL", "BA", "AY", "EY" };
+    std::string                     _airlines[8] = { "AF", "LH", "EY", "DL", "KL", "BA", "AY", "EY" };
     std::unordered_set<std::string> _aircrafts_flight_numbers;
 
     AircraftType& create_random_aircraft() const { return *(_aircraft_types[rand() % 3]); }
@@ -24,4 +25,5 @@ public:
     }
 
     std::unique_ptr<Aircraft> create_aircraft(Tower& tower);
+    void print_nb_airline(int airline) const;
 };
