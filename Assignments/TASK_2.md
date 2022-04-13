@@ -49,8 +49,28 @@ Remplacez le tableau `Point3D::values` par un `std::array` et puis, remplacez le
 utilisant des fonctions de `<algorithm>` / `<numeric>`:
 
 1. `Point3D::operator*=(const float scalar)`
+
+```c++
+std::transform(values.begin(), values.end(), values.begin(), 
+               [scalar](float value) -> float { return value * scalar; });
+```
+
 2. `Point3D::operator+=(const Point3D& other)` et `Point3D::operator-=(const Point3D& other)`
+
+```c++
+// Pour +=
+std::transform(values.begin(), values.end(), other.values.begin(), values.begin(), std::plus<float> {});
+
+// Pour -= 
+std::transform(values.begin(), values.end(), other.values.begin(), values.begin(), std::minus<float> {});
+```
+
 3. `Point3D::length() const`
+
+```c++
+std::sqrt(std::accumulate(values.begin(), values.end(), 0.0f, 
+                          [](float current, float next) { return current + (next * next); }));
+```
 
 ---
 
