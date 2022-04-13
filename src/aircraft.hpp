@@ -40,7 +40,6 @@ private:
     // deploy and retract landing gear depending on next waypoints
     void operate_landing_gear();
     void add_waypoint(const Waypoint& wp, const bool front);
-    bool is_on_ground() const { return pos.z() < DISTANCE_THRESHOLD; }
     float max_speed() const { return is_on_ground() ? type.max_ground_speed : type.max_air_speed; }
 
     Aircraft(const Aircraft&) = delete;
@@ -56,7 +55,8 @@ public:
             pos { pos_ },
             speed { speed_ },
             control { control_ },
-            fuel { 150 + (rand() % 2850) }
+//            fuel { 150 + (rand() % 2850) }
+            fuel { 250 }
     {
         speed.cap_length(max_speed());
     }
@@ -69,6 +69,8 @@ public:
     bool move();
     bool has_terminal() const;
     bool is_circling() const;
+    bool is_low_on_fuel() const;
+    bool is_on_ground() const { return pos.z() < DISTANCE_THRESHOLD; }
 
     friend class Tower;
 };

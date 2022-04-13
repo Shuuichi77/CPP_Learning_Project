@@ -217,23 +217,36 @@ réapprovisionnés par l'aéroport pendant qu'ils sont au terminal.
    Testez votre programme pour vérifier que certains avions attendent bien indéfiniment au terminal. Si ce n'est pas le
    cas, essayez de faire varier la constante `200`.
 
+- Dans `Terminal::is_servicing() const`, on regarde maintenant également regarde si `current_aircraft->is_low_on_fuel()`
+  . Si c'est le cas, alors on dit que le terminal est encore en service car on ne peut pas laisser l'aircraft repartir.
+
 2. Dans `AircraftManager`, implémentez une fonction `get_required_fuel`, qui renvoie la somme de l'essence manquante (le
    plein, soit `3'000`, moins la quantité courante d'essence) pour les avions vérifiant les conditions suivantes :\
    \- l'avion est bientôt à court d'essence\
    \- l'avion n'est pas déjà reparti de l'aéroport.
 
+- On va créer un `std::accumulate` dans `AircraftManager::get_required_fuel()` qui va récupérer le niveau de fuel de
+  chaque avion si celui-ci respecte les conditions énoncées. De plus, pour savoir si un avion n'est pas déjà reparti de
+  l'aéroport, on passe la fonction `Aircraft::is_on_ground()` en public.
+
 3. Ajoutez deux attributs `fuel_stock` et `ordered_fuel` dans la classe `Airport`, que vous initialiserez à 0.\
    Ajoutez également un attribut `next_refill_time`, aussi initialisé à 0.\
    Enfin, faites en sorte que la classe `Airport` ait accès à votre `AircraftManager` de manière à pouvoir l'interroger.
+
+- TODO
 
 4. Ajoutez une fonction `refill` à la classe `Aircraft`, prenant un paramètre `fuel_stock` par référence non-constante.
    Cette fonction rempliera le réservoir de l'avion en soustrayant ce dont il a besoin de `fuel_stock`. Bien
    entendu, `fuel_stock` ne peut pas devenir négatif.\
    Indiquez dans la console quel avion a été réapprovisionné ainsi que la quantité d'essence utilisée.
 
+- TODO
+
 5. Définissez maintenant une fonction `refill_aircraft_if_needed` dans la classe `Terminal`, prenant un
    paramètre `fuel_stock` par référence non-constante. Elle devra appeler la fonction `refill` sur l'avion actuellement
    au terminal, si celui-ci a vraiment besoin d'essence.
+
+- TODO
 
 6. Modifiez la fonction `Airport::move`, afin de mettre-en-oeuvre les étapes suivantes.\
    \- Si `next_refill_time` vaut 0 :\
@@ -245,6 +258,8 @@ réapprovisionnés par l'aéroport pendant qu'ils sont au terminal.
    affichées dans la console.\
    \- Sinon `next_refill_time` est décrémenté.\
    \- Chaque terminal réapprovisionne son avion s'il doit l'être.
+
+- TODO
 
 ### E - Déréservation
 
