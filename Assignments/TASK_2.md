@@ -158,7 +158,7 @@ un terminal tant qu'ils n'en n'ont pas (au lieu de ne demander que lorsqu'ils on
 ### C - Minimiser les crashs
 
 Grâce au changement précédent, dès lors qu'un terminal est libéré, il sera réservé lors du premier appel
-à `Aircraft::move` d'un avion recherchant un terminal. Pour vous assurez que les terminaux seront réservés par les
+à `Aircraft::move` d'un avion recherchant un terminal. Pour vous assurer que les terminaux seront réservés par les
 avions avec le moins d'essence, vous allez donc réordonner la liste des `aircrafts` avant de les mettre à jour.
 
 Vous devrez placer au début de la liste les avions qui ont déjà réservé un terminal.\
@@ -189,6 +189,9 @@ C - NotReserved / Fuel: 300
 Assurez-vous déjà que le conteneur `AircraftManager::aircrafts` soit ordonnable (`vector`, `list`, etc).\
 Au début de la fonction `AircraftManager::move`, ajoutez les instructions permettant de réordonner les `aircrafts` dans
 l'ordre défini ci-dessus.
+
+- On ajoute un simple `std::sort` au début de la fonction `AircraftManager::move()` et on trie les aircraft en fonction
+  de leur niveau de fuel (on rajoute un getter sur `fuel` au passage).
 
 ### D - Réapprovisionnement
 
