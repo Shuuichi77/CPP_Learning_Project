@@ -136,6 +136,7 @@ bool Aircraft::move()
         }
         else
         {
+            fuel--;
             // if we are in the air, but too slow, then we will sink!
             const float speed_len = speed.length();
             if (speed_len < SPEED_THRESHOLD)
@@ -148,7 +149,6 @@ bool Aircraft::move()
         GL::Displayable::z = pos.x() + pos.y();
     }
 
-    fuel--;
     return true;
 }
 

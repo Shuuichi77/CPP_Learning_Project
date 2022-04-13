@@ -92,9 +92,10 @@ comprise entre `150` et `3'000`.\
 
 Décrémentez cette valeur dans `Aircraft::move` si l'avion est en vol.\
 
-- A la fin de la fonction `Aircraft::move()`, avant le `return true`, on décrémente la valeur du fuel : puisqu'on va
-  retourner `true`, cela veut dire que l'aircraft va bouger, d'où le fait qu'on puisse effectivement décrémenter le fuel
-  à ce moment-là.
+- Quand on teste si l'aircraft is_on_ground(), si on va dans le `else`, on décrémente la valeur du fuel puisque c'est à
+  ce moment-là qu'on teste si l'aircraft est en vol ou non. On ne le met pas juste avant le `return true` à la fin
+  puisque si l'avion est dans un terminal (donc on n'est pas rentré dans le `if (!is_at_terminal)`), alors l'aircraft
+  est forcément sur terre (dans un terminal).
 
 Lorsque cette valeur atteint 0, affichez un message dans la console pour indiquer le crash, et faites en sorte que
 l'avion soit supprimé du manager.
