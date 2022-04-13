@@ -22,13 +22,12 @@ void AircraftManager::emplace_aircraft(std::unique_ptr<Aircraft> aircraft)
 
 int AircraftManager::get_required_fuel() const
 {
-    return std::accumulate(aircrafts.begin(), aircrafts.end(), 0,
-                           [](int current, const std::unique_ptr<Aircraft>& aircraft) {
-                               if (aircraft->is_low_on_fuel() || aircraft->is_on_ground())
-                               {
-                                   current += (3000 - aircraft->get_fuel());
-                               }
+    const auto get_aircraft_required_fuel = [](const std::unique_ptr<Aircraft>& aircraft) {
+        return (aircraft->is_low_on_fuel() || aircraft->is_on_ground()) ? (3000 - aircraft->get_fuel()) : 0;
+    };
 
-                               return current;
+    return std::accumulate(aircrafts.begin(), aircrafts.end(), 0,
+                           [&get_aircraft_required_fuel](int current, const std::unique_ptr<Aircraft>& aircraft) {
+                               return current + get_aircraft_required_fuel(aircraft);
                            });
 }
