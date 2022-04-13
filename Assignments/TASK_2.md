@@ -86,11 +86,26 @@ La notation tiendra compte de votre utilisation judicieuse de la librairie stand
 
 Ajoutez un attribut `fuel` à `Aircraft`, et initialisez-le à la création de chaque avion avec une valeur aléatoire
 comprise entre `150` et `3'000`.\
+
+- Dans le constructeur de l'aircraft, on rajoute un `fuel { 150 + (rand() % 2850) }` pour initialiser la valeur du fuel
+  d'un aircraft.
+
 Décrémentez cette valeur dans `Aircraft::move` si l'avion est en vol.\
+
+- A la fin de la fonction `Aircraft::move()`, avant le `return true`, on décrémente la valeur du fuel : puisqu'on va
+  retourner `true`, cela veut dire que l'aircraft va bouger, d'où le fait qu'on puisse effectivement décrémenter le fuel
+  à ce moment-là.
+
 Lorsque cette valeur atteint 0, affichez un message dans la console pour indiquer le crash, et faites en sorte que
 l'avion soit supprimé du manager.
 
+- Au début de la fonction `Aircraft::move()`, on regarde si la valeur du fuel vaut 0, auquel cas on `return false` afin
+  que la fonction `AircraftManager::move()` supprime l'aircraft.
+
 N'hésitez pas à adapter la borne `150` - `3'000`, de manière à ce que des avions se crashent de temps en temps.
+
+- En mettant la valeur du fuel à `fuel { 150 }`, on remarque que tous les avions se crashent au bout d'un certain
+  temps : à priori, on a l'effet escompté.
 
 ### B - Un terminal s'il vous plaît
 

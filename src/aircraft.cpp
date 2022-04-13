@@ -11,7 +11,7 @@ void Aircraft::turn_to_waypoint()
         Point3D target = waypoints[0];
         if (waypoints.size() > 1)
         {
-            const float d   = (waypoints[0] - pos).length();
+            const float   d = (waypoints[0] - pos).length();
             const Point3D W = (waypoints[0] - waypoints[1]).normalize(d / 2.0f);
             target += W;
         }
@@ -31,8 +31,8 @@ unsigned int Aircraft::get_speed_octant() const
     if (speed_len > 0)
     {
         const Point3D norm_speed { speed * (1.0f / speed_len) };
-        const float angle =
-            (norm_speed.y() > 0) ? 2.0f * 3.141592f - std::acos(norm_speed.x()) : std::acos(norm_speed.x());
+        const float   angle = (norm_speed.y() > 0) ? 2.0f * 3.141592f - std::acos(norm_speed.x()) :
+                              std::acos(norm_speed.x());
         // partition into NUM_AIRCRAFT_TILES equal pieces
         return (static_cast<int>(std::round((angle * NUM_AIRCRAFT_TILES) / (2.0f * 3.141592f))) + 1) %
                NUM_AIRCRAFT_TILES;
@@ -90,6 +90,12 @@ void Aircraft::add_waypoint(const Waypoint& wp, const bool front)
 
 bool Aircraft::move()
 {
+    if (fuel == 0)
+    {
+        std::cout << flight_number << " doesn't have any fuel left. Crash!" << std::endl;
+        return false;
+    }
+
     if (waypoints.empty())
     {
         waypoints = control.get_instructions(*this);
@@ -141,7 +147,8 @@ bool Aircraft::move()
         // update the z-value of the displayable structure
         GL::Displayable::z = pos.x() + pos.y();
     }
-    
+
+    fuel--;
     return true;
 }
 
