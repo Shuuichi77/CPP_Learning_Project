@@ -6,13 +6,22 @@ bool AircraftManager::move()
 {
     std::sort(aircrafts.begin(), aircrafts.end(),
               [](const std::unique_ptr<Aircraft>& a, const std::unique_ptr<Aircraft>& b) {
-                  return a->get_fuel() < b->get_fuel();
+                  if (a->has_terminal() && !b->has_terminal())
+                  {
+                      return true;
+                  }
+
+                  if (!a->has_terminal() && b->has_terminal())
+                  {
+                      return false;
+                  }
+
+                  return a->get_fuel() < b->get_fuel();;
               });
 
     aircrafts.erase(std::remove_if(aircrafts.begin(), aircrafts.end(),
                                    [](const std::unique_ptr<Aircraft>& aircraft) { return !aircraft->move(); }),
                     aircrafts.end());
-
     return true;
 }
 void AircraftManager::emplace_aircraft(std::unique_ptr<Aircraft> aircraft)
@@ -23,7 +32,7 @@ void AircraftManager::emplace_aircraft(std::unique_ptr<Aircraft> aircraft)
 int AircraftManager::get_required_fuel() const
 {
     const auto get_aircraft_required_fuel = [](const std::unique_ptr<Aircraft>& aircraft) {
-        return (aircraft->is_low_on_fuel() || aircraft->is_on_ground()) ? (3000 - aircraft->get_fuel()) : 0;
+        return (aircraft->is_low_on_fuel() && aircraft->is_on_ground()) ? (3000 - aircraft->get_fuel()) : 0;
     };
 
     return std::accumulate(aircrafts.begin(), aircrafts.end(), 0,
