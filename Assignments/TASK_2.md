@@ -125,8 +125,7 @@ un terminal tant qu'ils n'en n'ont pas (au lieu de ne demander que lorsqu'ils on
   l'aircraft.\
   **NB :** on n'utilise pas `waypoints.back().is_at_terminal()` comme conseillé car cela peut poser problème quand un
   aircraft attend de finir son service/entretien dans un terminal : dans ce cas précis, l'aircraft a son `waypoints`
-  vide, donc `has_terminal()` renvoie `false` alors que l'aircraft est dans un terminal. On pourrait aussi introduire un
-  bool mais j'en parle dans le NB2 de la question suivante.
+  vide, donc `has_terminal()` renvoie `false` alors que l'aircraft est dans un terminal.
 
 2. Ajoutez une fonction `bool Aircraft::is_circling() const` qui indique si l'avion attend qu'on lui assigne un terminal
    pour pouvoir atterrir.
@@ -141,14 +140,10 @@ un terminal tant qu'ils n'en n'ont pas (au lieu de ne demander que lorsqu'ils on
   est friend class) lorsqu'on check si l'aircraft a fini son service/entretien dans un terminal. Si c'est le cas, alors
   on peut mettre l'attribut à `true`.\
   **NB :** A noter que je n'ai pas trouvé d'autres moyens pour déterminer qu'un aircraft est sur son chemin "terminal to
-  air" à part introduire un attribut bool à `Aircraft`. En effet, quand il emprunte ce chemin, son dernier waypoint sera
-  de type `wp_air` (cf. `AirportType::terminal_to_air(...)`) donc on ne peut pas se servir du type de `waypoints.back()`
+  air" à part introduire un attribut bool à `Aircraft`. En effet, quand i<l emprunte ce chemin, son dernier waypoint
+  sera de type `wp_air` (cf. `AirportType::terminal_to_air(...)`) donc on ne peut pas se servir du type
+  de `waypoints.back()`
   .
-  **NB2:** Il est vrai qu'en introduisant un nouvel attribut, on pourrait faire en sorte que celui-ci check si un
-  aircraft a déjà eu un terminal (`bool had_terminal` qu'on met à `true` dès lors qu'un aircraft réserve un terminal)
-  ce qui nous permettrait d'utiliser cet attribut dans `bool Aircraft::has_terminal() const` et donc de se passer
-  du `std::find`. Mais le principe de l'exercice étant d'utiliser les fonctions d'`<algorithm>` ou de `<numeric>`, je
-  n'ai pas utilisé cette idée.
 
 3. Introduisez une fonction `WaypointQueue Tower::reserve_terminal(Aircraft& aircraft)` qui essaye de réserver
    un `Terminal`. Si c'est possible, alors elle retourne un chemin vers ce `Terminal`, et un chemin vide autrement (vous
@@ -220,8 +215,8 @@ réapprovisionnés par l'aéroport pendant qu'ils sont au terminal.
    Testez votre programme pour vérifier que certains avions attendent bien indéfiniment au terminal. Si ce n'est pas le
    cas, essayez de faire varier la constante `200`.
 
-    - Dans `Terminal::is_servicing()`, on fait un `||` afin de regarder si `current_aircraft->is_low_on_fuel()`. De
-      cette façon, la fonction renverra `true` si le `current_aircraft` n'a pas assez d'essence.
+- Dans `Terminal::is_servicing()`, on fait un `||` afin de regarder si `current_aircraft->is_low_on_fuel()`. De cette
+  façon, la fonction renverra `true` si le `current_aircraft` n'a pas assez d'essence.
 
 2. Dans `AircraftManager`, implémentez une fonction `get_required_fuel`, qui renvoie la somme de l'essence manquante (le
    plein, soit `3'000`, moins la quantité courante d'essence) pour les avions vérifiant les conditions suivantes :\
