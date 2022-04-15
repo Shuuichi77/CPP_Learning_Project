@@ -62,6 +62,8 @@ public:
         speed.cap_length(max_speed());
     }
 
+    virtual ~Aircraft() { control.remove_crashed_aircraft_from_terminal(*this); }
+
     const std::string& get_flight_num() const { return flight_number; }
     unsigned int get_fuel() const { return fuel; }
 

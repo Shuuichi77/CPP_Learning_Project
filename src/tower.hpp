@@ -31,4 +31,5 @@ public:
     void arrived_at_terminal(const Aircraft& aircraft);
     WaypointQueue reserve_terminal(Aircraft& aircraft);
     AircraftToTerminal get_reserved_terminals() const { return reserved_terminals; }
+    void remove_crashed_aircraft_from_terminal(const Aircraft& aircraft);
 };
