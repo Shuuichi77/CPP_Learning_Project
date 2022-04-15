@@ -97,7 +97,7 @@ bool Aircraft::move()
 
         if (!terminal_waypoints.empty())
         {
-            waypoints = std::move(terminal_waypoints);
+            waypoints.swap(terminal_waypoints);
         }
     }
 
