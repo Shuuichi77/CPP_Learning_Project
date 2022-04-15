@@ -87,8 +87,9 @@ La notation tiendra compte de votre utilisation judicieuse de la librairie stand
 Ajoutez un attribut `fuel` à `Aircraft`, et initialisez-le à la création de chaque avion avec une valeur aléatoire
 comprise entre `150` et `3'000`.\
 
-- Dans le constructeur de l'aircraft, on rajoute un `fuel { 150 + (rand() % 2850) }` pour initialiser la valeur du fuel
-  d'un aircraft.
+- A l'initialisation de `fuel`, on rajoute un `unsigned int fuel = MIN_FUEL + (rand() % (MAX_FUEL - MIN_FUEL)) + 1`
+  où `MIN_FUEL = 150` et `
+  MAX_FUEL = 3000`.
 
 Décrémentez cette valeur dans `Aircraft::move` si l'avion est en vol.\
 
@@ -100,13 +101,13 @@ Décrémentez cette valeur dans `Aircraft::move` si l'avion est en vol.\
 Lorsque cette valeur atteint 0, affichez un message dans la console pour indiquer le crash, et faites en sorte que
 l'avion soit supprimé du manager.
 
-- Au début de la fonction `Aircraft::move()`, on regarde si la valeur du fuel vaut 0, auquel cas on `return false` afin
-  que la fonction `AircraftManager::move()` supprime l'aircraft.
+- Lorsqu'on décrémente la valeur de `fuel` dans `Aircraft::move()`, on regarde si la valeur vaut 0 auquel cas
+  on `return false` afin que la fonction `AircraftManager::move()` supprime l'aircraft.
 
 N'hésitez pas à adapter la borne `150` - `3'000`, de manière à ce que des avions se crashent de temps en temps.
 
-- En mettant la valeur du fuel à `fuel { 150 }`, on remarque que tous les avions se crashent au bout d'un certain
-  temps : à priori, on a l'effet escompté.
+- En mettant la valeur du fuel à `unsigned int fuel = 150`, on remarque que tous les avions se crashent au bout d'un
+  certain temps : à priori, on a l'effet escompté.
 
 ### B - Un terminal s'il vous plaît
 
@@ -204,7 +205,9 @@ Au début de la fonction `AircraftManager::move`, ajoutez les instructions perme
 l'ordre défini ci-dessus.
 
 - On ajoute un simple `std::sort` au début de la fonction `AircraftManager::move()` et on trie les aircraft en fonction
-  de leur niveau de fuel (on rajoute un getter sur `fuel` au passage).
+  de leur niveau de fuel (on rajoute un getter sur `fuel` au passage).\
+  Cependant, avant de comparer le niveau de fuel, on n'oublie pas de regarder si un des deux aircrafts a un terminal et
+  l'autre non : dans ce cas-là, c'est celui qui a un terminal qui a la priorité sur l'autre.
 
 ### D - Réapprovisionnement
 
@@ -217,36 +220,45 @@ réapprovisionnés par l'aéroport pendant qu'ils sont au terminal.
    Testez votre programme pour vérifier que certains avions attendent bien indéfiniment au terminal. Si ce n'est pas le
    cas, essayez de faire varier la constante `200`.
 
-- Dans `Terminal::is_servicing() const`, on regarde maintenant également regarde si `current_aircraft->is_low_on_fuel()`
-  . Si c'est le cas, alors on dit que le terminal est encore en service car on ne peut pas laisser l'aircraft repartir.
+    - Dans `Terminal::is_servicing()`, on fait un `||` afin de regarder si `current_aircraft->is_low_on_fuel()`. De
+      cette façon, la fonction renverra `true` si le `current_aircraft` n'a pas assez d'essence.
 
 2. Dans `AircraftManager`, implémentez une fonction `get_required_fuel`, qui renvoie la somme de l'essence manquante (le
    plein, soit `3'000`, moins la quantité courante d'essence) pour les avions vérifiant les conditions suivantes :\
    \- l'avion est bientôt à court d'essence\
    \- l'avion n'est pas déjà reparti de l'aéroport.
 
-- On va créer un `std::accumulate` dans `AircraftManager::get_required_fuel()` qui va récupérer le niveau de fuel de
-  chaque avion si celui-ci respecte les conditions énoncées. De plus, pour savoir si un avion n'est pas déjà reparti de
-  l'aéroport, on passe la fonction `Aircraft::is_on_ground()` en public.
+- On va créer un `std::accumulate` dans `AircraftManager::get_required_fuel()` qui va additionner le niveau de fuel de
+  chaque avion du `std::vector` de `AircraftManager` si l'avion respecte les conditions énoncées. De plus, pour savoir
+  si un avion n'est pas déjà reparti de l'aéroport, on passe la fonction `Aircraft::is_on_ground()` en public.
 
 3. Ajoutez deux attributs `fuel_stock` et `ordered_fuel` dans la classe `Airport`, que vous initialiserez à 0.\
    Ajoutez également un attribut `next_refill_time`, aussi initialisé à 0.\
    Enfin, faites en sorte que la classe `Airport` ait accès à votre `AircraftManager` de manière à pouvoir l'interroger.
 
-- TODO
+- Pour que la classe `Airport` ait accès à notre `AircraftManager` de `TowerSimulation`, on ajoute un
+  champ `const AircraftManager& aircraft_manager` dans `Airport`. Puis désormais lorsqu'on initialise notre `Airport`
+  dans `TowerSimulation::init_airport()`, on lui fournit l'attribut `aircraft_manager`.
 
 4. Ajoutez une fonction `refill` à la classe `Aircraft`, prenant un paramètre `fuel_stock` par référence non-constante.
    Cette fonction rempliera le réservoir de l'avion en soustrayant ce dont il a besoin de `fuel_stock`. Bien
    entendu, `fuel_stock` ne peut pas devenir négatif.\
    Indiquez dans la console quel avion a été réapprovisionné ainsi que la quantité d'essence utilisée.
 
-- TODO
+- Avant de refill le `fuel` de l'aircraft, on regarde si la quantité nécessaire pour refill l'aircraft est inférieure à
+  `fuel_stock`, auquel cas on peut remplir totalement le fuel de l'aircraft et soustraire cette valeur à `fuel_stock`
+  .\
+  Si on n'a pas assez de `fuel_stock`, on remplit le `fuel` de l'aircraft avec le montant actuel de `fuel_stock` et on
+  met la valeur de celui-ci à zéro puisqu'on utilise tout le stock pour le mettre dans l'aircraft.
 
 5. Définissez maintenant une fonction `refill_aircraft_if_needed` dans la classe `Terminal`, prenant un
    paramètre `fuel_stock` par référence non-constante. Elle devra appeler la fonction `refill` sur l'avion actuellement
    au terminal, si celui-ci a vraiment besoin d'essence.
 
-- TODO
+- Dans la fonction `Terminal::refill_aircraft_if_needed(int& fuel_stock)`, on va utiliser la fonction qu'on vient de
+  créer `Aircraft::refill(int& fuel_stock)`. On remarque que cette fonction n'est pas une fonction `const` puisqu'on
+  modifie la valeur de `fuel`. Or, l'attribut `current_aircraft` de `Terminal` est déclaré `const` : on doit donc
+  enlever le mot clé `const` pour implémenter notre fonction `refill_aircraft_if_needed`.
 
 6. Modifiez la fonction `Airport::move`, afin de mettre-en-oeuvre les étapes suivantes.\
    \- Si `next_refill_time` vaut 0 :\
@@ -259,7 +271,9 @@ réapprovisionnés par l'aéroport pendant qu'ils sont au terminal.
    \- Sinon `next_refill_time` est décrémenté.\
    \- Chaque terminal réapprovisionne son avion s'il doit l'être.
 
-- TODO
+- Afin que chaque terminal réapprovisionne son avion, après le `t.move();` dans `Airport::move`, on
+  rajoute `t.refill_aircraft_if_needed(fuel_stock);`.\
+  Pour le reste, cf. `Airport::move`.
 
 ### E - Déréservation
 

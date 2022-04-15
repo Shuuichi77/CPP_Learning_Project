@@ -27,8 +27,7 @@ TowerSimulation::~TowerSimulation()
 void TowerSimulation::create_aircraft()
 {
     assert(airport); // make sure the airport is initialized before creating aircraft
-    auto aircraft = aircraft_factory.create_aircraft(airport->get_tower());
-    aircraft_manager.emplace_aircraft(std::move(aircraft));
+    aircraft_manager.emplace_aircraft(aircraft_factory.create_aircraft(airport->get_tower()));
 }
 
 void TowerSimulation::create_keystrokes()
@@ -63,7 +62,7 @@ void TowerSimulation::display_help() const
 
 void TowerSimulation::init_airport()
 {
-    airport = new Airport { one_lane_airport, Point3D { 0, 0, 0 },
+    airport = new Airport { aircraft_manager, one_lane_airport, Point3D { 0, 0, 0 },
                             new img::Image { one_lane_airport_sprite_path.get_full_path() }};
 
     GL::display_queue.emplace_back(airport);
@@ -83,8 +82,8 @@ void TowerSimulation::launch()
         return;
     }
 
-    init_airport();
     init_aircraftManager();
+    init_airport();
 
     GL::loop();
 }

@@ -13,15 +13,18 @@
 class Aircraft : public GL::Displayable
 {
 private:
+    static constexpr unsigned int MAX_FUEL = 3000;
+    static constexpr unsigned int MIN_FUEL = 150;
+
     const AircraftType& type;
     const std::string flight_number;
     Point3D           pos, speed; // note: the speed should always be normalized to length 'speed'
-    WaypointQueue     waypoints = {};
+    WaypointQueue     waypoints            = {};
     Tower& control;
-    bool landing_gear_deployed = false; // is the landing gear deployed?
-    bool is_at_terminal        = false;
-    bool is_leaving_terminal   = false;
-    int  fuel;
+    bool         landing_gear_deployed = false; // is the landing gear deployed?
+    bool         is_at_terminal        = false;
+    bool         is_leaving_terminal   = false;
+    unsigned int fuel                  = MIN_FUEL + (rand() % (MAX_FUEL - MIN_FUEL)) + 1;
 
     // turn the aircraft to arrive at the next waypoint
     // try to facilitate reaching the waypoint after the next by facing the
@@ -54,23 +57,22 @@ public:
             flight_number { flight_number_ },
             pos { pos_ },
             speed { speed_ },
-            control { control_ },
-//            fuel { 150 + (rand() % 2850) }
-            fuel { 250 }
+            control { control_ }
     {
         speed.cap_length(max_speed());
     }
 
     const std::string& get_flight_num() const { return flight_number; }
-    int get_fuel() const { return fuel; }
-    float distance_to(const Point3D& p) const { return pos.distance_to(p); }
+    unsigned int get_fuel() const { return fuel; }
 
+    float distance_to(const Point3D& p) const { return pos.distance_to(p); }
     void display() const override;
     bool move();
     bool has_terminal() const;
     bool is_circling() const;
     bool is_low_on_fuel() const;
     bool is_on_ground() const { return pos.z() < DISTANCE_THRESHOLD; }
+    void refill(unsigned int& fuel_stock);
 
     friend class Tower;
 };

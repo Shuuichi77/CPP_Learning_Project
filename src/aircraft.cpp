@@ -90,12 +90,6 @@ void Aircraft::add_waypoint(const Waypoint& wp, const bool front)
 
 bool Aircraft::move()
 {
-    if (fuel == 0)
-    {
-        std::cout << flight_number << " doesn't have any fuel left. Crash!" << std::endl;
-        return false;
-    }
-
     // If aircraft is waiting for a terminal, try to reserve a terminal
     if (is_circling())
     {
@@ -147,7 +141,13 @@ bool Aircraft::move()
         }
         else
         {
-            fuel--;
+            if (--fuel == 0)
+            {
+                std::cout << "/!\\ /!\\ " << flight_number << " doesn't have any fuel left. Crash! /!\\ /!\\"
+                          << std::endl;
+                return false;
+            }
+
             // if we are in the air, but too slow, then we will sink!
             const float speed_len = speed.length();
             if (speed_len < SPEED_THRESHOLD)
@@ -180,5 +180,34 @@ bool Aircraft::is_circling() const
 
 bool Aircraft::is_low_on_fuel() const
 {
-    return fuel < 200;
+    return fuel < 200u;
+}
+
+void Aircraft::refill(unsigned int& fuel_stock)
+{
+    if (fuel_stock == 0)
+    {
+        return;
+    }
+
+    unsigned int fuel_needed = MAX_FUEL - fuel;
+
+    if (fuel_stock > fuel_needed)
+    {
+        std::cout << flight_number << " has been entirely refilled (+" << fuel_needed << ")" << std::endl;
+    }
+
+    else
+    {
+        std::cout << flight_number << " has not been entirely refilled (+" << fuel_stock << ")" << std::endl;
+        fuel_needed = fuel_stock;
+    }
+
+    fuel += fuel_needed;
+    fuel_stock -= fuel_needed;
+
+    if (fuel_stock == 0)
+    {
+        std::cout << "There is no fuel_stock available anymore." << std::endl;
+    }
 }

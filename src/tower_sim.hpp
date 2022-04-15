@@ -24,8 +24,8 @@ private:
     bool help = false;
     Airport* airport = nullptr;
     ContextInitializer _context_initializer;
-    AircraftManager aircraft_manager;
-    AircraftFactory aircraft_factory;
+    AircraftManager    aircraft_manager;
+    AircraftFactory    aircraft_factory;
 
     TowerSimulation(const TowerSimulation&) = delete;
     TowerSimulation& operator=(const TowerSimulation&) = delete;
