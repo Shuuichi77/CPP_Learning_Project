@@ -90,6 +90,11 @@ void Aircraft::add_waypoint(const Waypoint& wp, const bool front)
 
 bool Aircraft::move()
 {
+    if (is_leaving_terminal && waypoints.empty())
+    {
+        return false;
+    }
+    
     // If aircraft is waiting for a terminal, try to reserve a terminal
     if (is_circling())
     {
@@ -108,11 +113,6 @@ bool Aircraft::move()
 
     if (!is_at_terminal)
     {
-        if (waypoints.empty())
-        {
-            return false;
-        }
-
         turn_to_waypoint();
         // move in the direction of the current speed
         pos += speed;
