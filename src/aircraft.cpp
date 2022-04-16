@@ -3,7 +3,7 @@
 #include "GL/opengl_interface.hpp"
 
 #include <cmath>
-#include "aircraft_crash.hpp"
+#include "exception/aircraft_crash.hpp"
 
 void Aircraft::turn_to_waypoint()
 {
@@ -95,7 +95,7 @@ bool Aircraft::move()
     {
         return false;
     }
-    
+
     // If aircraft is waiting for a terminal, try to reserve a terminal
     if (is_circling())
     {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdexcept>
-#include "geometry.hpp"
+#include "../geometry.hpp"
 
 class AircraftCrash : public std::runtime_error
 {
