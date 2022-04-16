@@ -3,6 +3,7 @@
 #include "GL/opengl_interface.hpp"
 
 #include <cmath>
+#include "aircraft_crash.hpp"
 
 void Aircraft::turn_to_waypoint()
 {
@@ -135,17 +136,14 @@ bool Aircraft::move()
         {
             if (!landing_gear_deployed)
             {
-                using namespace std::string_literals;
-                throw AircraftCrash { flight_number + " crashed into the ground"s };
+                throw AircraftCrash { flight_number, pos, speed, "crashed into the ground, bad landing" };
             }
         }
         else
         {
             if (--fuel == 0)
             {
-                std::cout << "/!\\ /!\\ " << flight_number << " doesn't have any fuel left. Crash! /!\\ /!\\"
-                          << std::endl;
-                return false;
+                throw AircraftCrash { flight_number, pos, speed, "out of fuel" };
             }
 
             // if we are in the air, but too slow, then we will sink!

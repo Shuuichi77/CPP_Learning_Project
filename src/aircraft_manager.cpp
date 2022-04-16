@@ -20,8 +20,18 @@ bool AircraftManager::move()
               });
 
     aircrafts.erase(std::remove_if(aircrafts.begin(), aircrafts.end(),
-                                   [](const std::unique_ptr<Aircraft>& aircraft) { return !aircraft->move(); }),
-                    aircrafts.end());
+                                   [this](const std::unique_ptr<Aircraft>& aircraft) {
+                                       try
+                                       {
+                                           return !aircraft->move();
+                                       }
+                                       catch (const std::runtime_error& err)
+                                       {
+                                           std::cerr << "AircraftCrash: " << err.what() << std::endl;
+                                           nb_crash++;
+                                           return true;
+                                       }
+                                   }), aircrafts.end());
     return true;
 }
 void AircraftManager::emplace_aircraft(std::unique_ptr<Aircraft> aircraft)

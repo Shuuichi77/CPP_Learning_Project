@@ -41,6 +41,7 @@ void TowerSimulation::create_keystrokes()
     GL::keystrokes.emplace('a', []() { GL::decrease_framerate(); });
     GL::keystrokes.emplace('z', []() { GL::increase_framerate(); });
     GL::keystrokes.emplace('p', []() { GL::pause(); });
+    GL::keystrokes.emplace('m', [this]() { aircraft_manager.print_nb_crash(); });
 
     for (int i = 0 ; i < 8 ; ++i)
     {
