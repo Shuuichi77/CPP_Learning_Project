@@ -59,6 +59,7 @@ public:
             speed { speed_ },
             control { control_ }
     {
+        assert(!flight_number.empty());
         speed.cap_length(max_speed());
     }
 
@@ -66,6 +67,7 @@ public:
 
     const std::string& get_flight_num() const { return flight_number; }
     unsigned int get_fuel() const { return fuel; }
+    unsigned int get_max_fuel() const { return MAX_FUEL; }
 
     float distance_to(const Point3D& p) const { return pos.distance_to(p); }
     void display() const override;

@@ -34,6 +34,8 @@ public:
 
     void finish_service()
     {
+        assert(current_aircraft != nullptr && "Can't finish service if there isn't any aircraft to begin with");
+
         if (!is_servicing())
         {
             std::cout << "done servicing " << current_aircraft->get_flight_num() << "\n";

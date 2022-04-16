@@ -21,11 +21,11 @@ public:
 class TowerSimulation
 {
 private:
-    bool help = false;
-    Airport* airport = nullptr;
-    ContextInitializer _context_initializer;
-    AircraftManager    aircraft_manager;
-    AircraftFactory    aircraft_factory;
+    bool                     help = false;
+    std::unique_ptr<Airport> airport;
+    ContextInitializer       _context_initializer;
+    AircraftManager          aircraft_manager;
+    AircraftFactory          aircraft_factory;
 
     TowerSimulation(const TowerSimulation&) = delete;
     TowerSimulation& operator=(const TowerSimulation&) = delete;

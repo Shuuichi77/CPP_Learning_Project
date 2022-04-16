@@ -13,7 +13,7 @@ private:
 
         return flight_number + " crashed with pos = (" +
                std::to_string(pos.x()) + ", " + std::to_string(pos.y()) + ", " + std::to_string(pos.z()) +
-               "), speed = " + std::to_string(speed.length()) +
+               ") and speed = " + std::to_string(speed.length()) +
                ": " + error;
     }
 

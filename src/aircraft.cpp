@@ -7,18 +7,17 @@
 
 void Aircraft::turn_to_waypoint()
 {
-    if (!waypoints.empty())
-    {
-        Point3D target = waypoints[0];
-        if (waypoints.size() > 1)
-        {
-            const float   d = (waypoints[0] - pos).length();
-            const Point3D W = (waypoints[0] - waypoints[1]).normalize(d / 2.0f);
-            target += W;
-        }
+    assert(!waypoints.empty() && "Aircraft can't turn to empty waypoint");
 
-        turn(target - pos - speed);
+    Point3D target = waypoints[0];
+    if (waypoints.size() > 1)
+    {
+        const float   d = (waypoints[0] - pos).length();
+        const Point3D W = (waypoints[0] - waypoints[1]).normalize(d / 2.0f);
+        target += W;
     }
+
+    turn(target - pos - speed);
 }
 
 void Aircraft::turn(Point3D direction)
@@ -47,6 +46,8 @@ unsigned int Aircraft::get_speed_octant() const
 // when we arrive at a terminal, signal the tower
 void Aircraft::arrive_at_terminal()
 {
+    assert(is_at_terminal == false && "Aircraft already arrived at terminal");
+
     // we arrived at a terminal, so start servicing
     control.arrived_at_terminal(*this);
     is_at_terminal = true;
@@ -188,6 +189,7 @@ void Aircraft::refill(unsigned int& fuel_stock)
         return;
     }
 
+    assert(fuel <= MAX_FUEL && "fuel can't be superior than MAX_FUEL");
     unsigned int fuel_needed = MAX_FUEL - fuel;
 
     if (fuel_stock > fuel_needed)

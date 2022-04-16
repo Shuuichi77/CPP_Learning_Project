@@ -34,6 +34,9 @@ private:
     // otherwise, return an empty waypoint-vector and any number
     std::pair<WaypointQueue, size_t> reserve_terminal(Aircraft& aircraft)
     {
+        assert(!terminals.empty());
+        assert(!aircraft.has_terminal());
+
         const auto it =
                            std::find_if(terminals.begin(), terminals.end(),
                                         [](const Terminal& t) { return !t.in_use(); });
@@ -52,10 +55,15 @@ private:
 
     WaypointQueue start_path(const size_t terminal_number)
     {
+        assert(terminal_number < type.get_nb_terminals());
         return type.terminal_to_air(pos, 0, terminal_number);
     }
 
-    Terminal& get_terminal(const size_t terminal_num) { return terminals.at(terminal_num); }
+    Terminal& get_terminal(const size_t terminal_num)
+    {
+        assert(terminal_num < terminals.size());
+        return terminals.at(terminal_num);
+    }
 
 public:
     Airport(const AircraftManager& aircraft_manager_, const AirportType& type_, const Point3D& pos_, const img::Image*
@@ -67,7 +75,10 @@ public:
             pos { pos_ },
             texture { image },
             terminals { type.create_terminals() },
-            tower { *this } {}
+            tower { *this }
+    {
+        assert(!terminals.empty());
+    }
 
     Tower& get_tower() { return tower; }
 

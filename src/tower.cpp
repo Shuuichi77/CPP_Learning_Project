@@ -61,8 +61,9 @@ WaypointQueue Tower::get_instructions(Aircraft& aircraft)
 
 void Tower::arrived_at_terminal(const Aircraft& aircraft)
 {
+    assert(aircraft.is_on_ground() && "Aircraft can't arrive at terminal and start service if it isn't on ground");
     const auto it = reserved_terminals.find(&aircraft);
-    assert(it != reserved_terminals.end());
+    assert(it != reserved_terminals.end() && "Aircraft can't arrive at terminal if it doesn't have a terminal");
     airport.get_terminal(it->second).start_service(aircraft);
 }
 

@@ -63,15 +63,20 @@ void TowerSimulation::display_help() const
 
 void TowerSimulation::init_airport()
 {
-    airport = new Airport { aircraft_manager, one_lane_airport, Point3D { 0, 0, 0 },
-                            new img::Image { one_lane_airport_sprite_path.get_full_path() }};
+    assert(airport == nullptr && "Airport has already been initialized");
 
-    GL::display_queue.emplace_back(airport);
-    GL::move_queue.emplace(airport);
+    airport = std::make_unique<Airport>(aircraft_manager, one_lane_airport, Point3D { 0, 0, 0 },
+                                        new img::Image { one_lane_airport_sprite_path.get_full_path() });
+
+    GL::display_queue.emplace_back(airport.get());
+    GL::move_queue.emplace(airport.get());
 }
 
 void TowerSimulation::init_aircraftManager()
 {
+    assert(GL::move_queue.find(&aircraft_manager) == GL::move_queue.end() &&
+           "AircraftManager has already been added in move_queue");
+
     GL::move_queue.emplace(&aircraft_manager);
 }
 
