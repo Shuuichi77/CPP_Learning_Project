@@ -60,7 +60,7 @@ void TowerSimulation::init_airport()
 {
     assert(airport == nullptr && "Airport has already been initialized");
 
-    airport = std::make_unique<Airport>(aircraft_manager, one_lane_airport, Point3D { 0, 0, 0 },
+    airport = std::make_unique<Airport>(aircraft_manager, one_lane_airport, Point3D { 0.f, 0.f, 0.f },
                                         new img::Image { one_lane_airport_sprite_path.get_full_path() });
 
     GL::display_queue.emplace_back(airport.get());

@@ -58,25 +58,25 @@ for (const auto& wp: control.get_instructions(*this))
    ce qui est des constructeurs, vous n'ajouterez pour le moment que le constructeur par défaut.
 
 - On veut que notre classe-template soit paramétrée par la dimension et son type : on écrit
-  donc `template<typename ElementType, const size_t Size>`.\
-  On déclare également l'attribut `std::array<ElementType, Size> values;`\
+  donc `template<typename T, const size_t Size>`.\
+  On déclare également l'attribut `std::array<T, Size> values;`\
   Puis on déclare les différentes fonctions en s'inspirant surtout de `Point3D`:
     - `Point& operator+=(const Point& other)`
     - `Point& operator-=(const Point& other)`
     - `Point& operator*=(const Point& other)`
-    - `Point& operator*=(const ElementType scalar)`
+    - `Point& operator*=(const T scalar)`
     - `Point operator+(const Point& other) const`
     - `Point operator-(const Point& other) const`
     - `Point operator*(const Point& other) const`
-    - `Point operator*(const ElementType scalar) const`
+    - `Point operator*(const T scalar) const`
     - `Point operator-() const` : c'est la seule fonction qui changera un peu par rapport aux implémentations
       de `Point2D` et `Point3D` : en effet, on va appliquer `std::transform` sur notre `values` qui va remplir sur un
-      nouvel objet `new_point` tel que la lambda est la suivante `[](ElementType e) { return -e; }`. Puis on retourne
+      nouvel objet `new_point` tel que la lambda est la suivante `[](T e) { return -e; }`. Puis on retourne
       notre `new_point`.
-    - `ElementType length()`
-    - `ElementType distance_to(const Point& other)`
-    - `Point& normalize(const ElementType target_len = (ElementType) 1)`
-    - `Point& cap_length(const ElementType max_len)`
+    - `T length()`
+    - `T distance_to(const Point& other)`
+    - `Point& normalize(const T target_len = (T) 1)`
+    - `Point& cap_length(const T max_len)`
 
 2. Ajoutez une fonction libre `test_generic_points` à votre programme, que vous appelerez depuis le `main`. Placez le
    code suivant dans cette fonction et modifiez-le plusieurs fois, pour vérifier que le compilateur est capable de
@@ -105,8 +105,8 @@ p1 *= 3; // ou 3.f, ou 3.0 en fonction du type de Point
    avant.
 
 - Pour faire de `Point2D` et `Point3D` des alias, on écrit `using Point2D = Point<float, 2>`
-  et `using Point3D = Point<float, 3>` et on ajoute leur constructeur `Point(ElementType x, ElementType y)`
-  et `Point(ElementType x, ElementType y, ElementType z)`.x\
+  et `using Point3D = Point<float, 3>` et on ajoute leur constructeur `Point(T x, T y)`
+  et `Point(T x, T y, T z)`.x\
   On remarque à la compilation que dans `texture.hpp`, dans `GL::Texture2D`, on a besoin de `values` qui étaient
   anciennement `float values[2] {}`. Or, on a désormais un `std::array` : on va donc dans un premier temps créer un
   getter pour `values` et dans `glVertex2fv(vertex.values)`, on va plutôt
@@ -140,7 +140,10 @@ p1 *= 3; // ou 3.f, ou 3.0 en fonction du type de Point
    En faisant ça, vous aurez peut-être désormais des problèmes avec la copie des `Point`. Que pouvez-vous faire pour
    supprimer l'ambiguité ?
 
-- TODO
+- Pour transférer n'importe quel nombre d'arguments, on utilise `...` et `std::forward` pour mettre tous les éléments
+  dans notre array. Et pour utiliser n'importe quel type dans notre constructeur, on utilise `&&`.\
+  Pour résoudre les problèmes avec la copie des `Point`, on doit rajouter le type `.f` sur les valeurs fourni dans les
+  constructeurs de `Point2D` et `Point3D` utilisés dans les différents fichiers de notre programme.
 
 7. **BONUS** En utilisant SFINAE, faites en sorte que le template `Point` ne puisse être instancié qu'avec des
    types [arithmétiques](https://en.cppreference.com/w/cpp/types/is_arithmetic).

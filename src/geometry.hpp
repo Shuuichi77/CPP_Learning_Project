@@ -7,36 +7,31 @@
 #include <iostream>
 #include <numeric>
 
-template<typename ElementType, const size_t Size>
+template<typename T, const size_t Size>
 class Point
 {
 private:
-    std::array<ElementType, Size> values;
+    std::array<T, Size> values;
 
 public:
     Point() = default;
 
-    Point(ElementType x, ElementType y)
-            : values { x, y }
+    template<typename... Args>
+    Point(T head, Args&& ... args)
+            : values { head, std::forward<Args>(args)... }
     {
-        static_assert(Size > 1);
+        static_assert(sizeof...(args) + 1 == Size && "Parameters numbers must be equal to Size");
     }
 
-    Point(ElementType x, ElementType y, ElementType z)
-            : values { x, y, z }
-    {
-        static_assert(Size > 2);
-    }
+    std::array<T, Size> get_values() const { return values; }
 
-    std::array<ElementType, Size> get_values() const { return values; }
-
-    ElementType& operator[](size_t index)
+    T& operator[](size_t index)
     {
         assert(index < Size);
         return values[index];
     }
 
-    const ElementType& operator[](size_t index) const
+    const T& operator[](size_t index) const
     {
         assert(index < Size);
         return values[index];
@@ -76,28 +71,28 @@ public:
     Point& operator+=(const Point& other)
     {
         std::transform(values.begin(), values.end(), other.values.begin(), values.begin(),
-                       std::plus<ElementType> {});
+                       std::plus<T> {});
         return *this;
     }
 
     Point& operator-=(const Point& other)
     {
         std::transform(values.begin(), values.end(), other.values.begin(), values.begin(),
-                       std::minus<ElementType> {});
+                       std::minus<T> {});
         return *this;
     }
 
     Point& operator*=(const Point& other)
     {
         std::transform(values.begin(), values.end(), other.values.begin(), values.begin(),
-                       std::multiplies<ElementType> {});
+                       std::multiplies<T> {});
         return *this;
     }
 
-    Point& operator*=(const ElementType scalar)
+    Point& operator*=(const T scalar)
     {
         std::transform(values.begin(), values.end(), values.begin(),
-                       [scalar](ElementType value) -> ElementType { return value * scalar; });
+                       [scalar](T value) -> T { return value * scalar; });
         return *this;
     }
 
@@ -122,7 +117,7 @@ public:
         return result;
     }
 
-    Point operator*(const ElementType scalar) const
+    Point operator*(const T scalar) const
     {
         Point result = *this;
         result *= scalar;
@@ -131,26 +126,26 @@ public:
 
     Point operator-() const
     {
-        Point<ElementType, Size> new_point = {};
+        Point<T, Size> new_point = {};
         std::transform(values.begin(), values.end(), new_point.values.begin(),
-                       [](ElementType e) { return -e; });
+                       [](T e) { return -e; });
 
         return new_point;
     }
 
-    ElementType length() const
+    T length() const
     {
-        return std::sqrt(std::accumulate(values.begin(), values.end(), (ElementType) 0,
-                                         [](ElementType current, ElementType next) {
+        return std::sqrt(std::accumulate(values.begin(), values.end(), (T) 0,
+                                         [](T current, T next) {
                                              return current + (next * next);
                                          }));
     }
 
-    ElementType distance_to(const Point& other) const { return (*this - other).length(); }
+    T distance_to(const Point& other) const { return (*this - other).length(); }
 
-    Point& normalize(const ElementType target_len = (ElementType) 1)
+    Point& normalize(const T target_len = (T) 1)
     {
-        const ElementType current_len = length();
+        const T current_len = length();
         if (current_len == 0)
         {
             throw std::logic_error("cannot normalize vector of length 0");
@@ -160,11 +155,11 @@ public:
         return *this;
     }
 
-    Point& cap_length(const ElementType max_len)
+    Point& cap_length(const T max_len)
     {
         assert(max_len > 0);
 
-        const ElementType current_len = length();
+        const T current_len = length();
         if (current_len > max_len)
         {
             *this *= (max_len / current_len);

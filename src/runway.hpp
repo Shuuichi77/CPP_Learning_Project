@@ -7,7 +7,7 @@ struct Runway
 {
     const Point3D start, end;
 
-    Runway(const Point3D& start_, const float length = 1) :
-        start { start_ }, end { start_ + Point3D { length, 0, 0 } }
-    {}
+    Runway(const Point3D& start_, const float length = 1)
+            : start { start_ },
+              end { start_ + Point3D { length, 0.f, 0.f }} {}
 };

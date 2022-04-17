@@ -74,11 +74,11 @@ namespace GL
         };
 
         static inline const std::array<Point2D, Coordinate::Count> _texture_shifts {
-                Point2D { 0, 0 }, Point2D { 1, 0 }, Point2D { 0, 1 }, Point2D { 1, 1 }
+                Point2D { 0.f, 0.f }, Point2D { 1.f, 0.f }, Point2D { 0.f, 1.f }, Point2D { 1.f, 1.f }
         };
 
         static inline const std::array<Point2D, Coordinate::Count> _screen_shifts {
-                Point2D { -1, 1 }, Point2D { 1, 1 }, Point2D { -1, -1 }, Point2D { 1, -1 }
+                Point2D { -1.f, 1.f }, Point2D { 1.f, 1.f }, Point2D { -1.f, -1.f }, Point2D { 1.f, -1.f }
         };
 
         void draw_point(Coordinate coordinate, const Point2D& screen_pos, const Point2D& screen_dim,
