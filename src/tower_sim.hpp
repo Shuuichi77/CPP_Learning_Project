@@ -2,8 +2,7 @@
 
 #include "aircraft_factory.hpp"
 #include "aircraft_manager.hpp"
-
-class Airport;
+#include "airport.hpp"
 
 struct AircraftType;
 
@@ -38,6 +37,5 @@ private:
 
 public:
     TowerSimulation(int argc, char** argv);
-    ~TowerSimulation();
     void launch();
 };

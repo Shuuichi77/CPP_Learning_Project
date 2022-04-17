@@ -19,11 +19,6 @@ TowerSimulation::TowerSimulation(int argc, char** argv)
     create_keystrokes();
 }
 
-TowerSimulation::~TowerSimulation()
-{
-    delete airport;
-}
-
 void TowerSimulation::create_aircraft()
 {
     assert(airport); // make sure the airport is initialized before creating aircraft
