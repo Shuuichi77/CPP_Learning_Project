@@ -57,6 +57,23 @@ for (const auto& wp: control.get_instructions(*this))
    classe-template `Point` paramétrée par la dimension (nombre de coordonnées) et leur type (entier/float/double). Pour
    ce qui est des constructeurs, vous n'ajouterez pour le moment que le constructeur par défaut.
 
+- On veut que notre classe-template soit paramétrée par la dimension et son type : on écrit
+  donc `template<typename ElementType, const size_t Size>`.\
+  On déclare également l'attribut `std::array<ElementType, Size> values;`\
+  Puis on déclare les différentes fonctions en s'inspirant surtout de `Point3D`:
+    - `Point& operator+=(const Point& other)`
+    - `Point& operator-=(const Point& other)`
+    - `Point& operator*=(const Point& other)`
+    - `Point& operator*=(const ElementType scalar)`
+    - `Point operator+(const Point& other) const`
+    - `Point operator-(const Point& other) const`
+    - `Point operator*(const Point& other) const`
+    - `Point operator*(const ElementType scalar) const`
+    - `Point operator-() const` : c'est la seule fonction qui changera par rapport aux implémentations de `Point2D`
+      et `Point3D` : en effet, on va appliquer `std::transform` sur notre `values` qui va remplir sur un nouvel
+      objet `new_point` tel que la lambda est la suivante `[](ElementType e) { return -e; }`. Puis on retourne
+      notre `new_point`.
+
 2. Ajoutez une fonction libre `test_generic_points` à votre programme, que vous appelerez depuis le `main`. Placez le
    code suivant dans cette fonction et modifiez-le plusieurs fois, pour vérifier que le compilateur est capable de
    générer des classes à partir de votre template sans problème :
@@ -68,6 +85,15 @@ auto p3 = p1 + p2;
 p1 += p2;
 p1 *= 3; // ou 3.f, ou 3.0 en fonction du type de Point
 ```
+
+- Dans notre fonction, on va tester toutes les opérations suivantes :
+    - +=
+    - -=
+    - *=
+    - p1 + p2
+    - p1 - p2
+    - p1 * p2
+    - -p1
 
 3. Ajoutez le constructeur à 2 paramètres de `Point2D` et le constructeur à 3 paramètres de `Point3D` dans votre
    classe-template. Modifiez `Point2D` et `Point3D` afin d'en faire des alias sur des classes générées à partir du

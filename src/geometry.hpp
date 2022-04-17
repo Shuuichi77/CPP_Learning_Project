@@ -7,6 +7,93 @@
 #include <iostream>
 #include <numeric>
 
+template<typename ElementType, const size_t Size>
+class Point
+{
+private:
+    std::array<ElementType, Size> values;
+
+public:
+    Point() = default;
+
+    ElementType& operator[](size_t index)
+    {
+        assert(index < Size);
+        return values[index];
+    }
+
+    const ElementType& operator[](size_t index) const
+    {
+        assert(index < Size);
+        return values[index];
+    }
+
+    Point& operator+=(const Point& other)
+    {
+        std::transform(values.begin(), values.end(), other.values.begin(), values.begin(),
+                       std::plus<ElementType> {});
+        return *this;
+    }
+
+    Point& operator-=(const Point& other)
+    {
+        std::transform(values.begin(), values.end(), other.values.begin(), values.begin(),
+                       std::minus<ElementType> {});
+        return *this;
+    }
+
+    Point& operator*=(const Point& other)
+    {
+        std::transform(values.begin(), values.end(), other.values.begin(), values.begin(),
+                       std::multiplies<ElementType> {});
+        return *this;
+    }
+
+    Point& operator*=(const ElementType scalar)
+    {
+        std::transform(values.begin(), values.end(), values.begin(),
+                       [scalar](ElementType value) -> ElementType { return value * scalar; });
+        return *this;
+    }
+
+    Point operator+(const Point& other) const
+    {
+        Point result = *this;
+        result += other;
+        return result;
+    }
+
+    Point operator-(const Point& other) const
+    {
+        Point result = *this;
+        result -= other;
+        return result;
+    }
+
+    Point operator*(const Point& other) const
+    {
+        Point result = *this;
+        result *= other;
+        return result;
+    }
+
+    Point operator*(const ElementType scalar) const
+    {
+        Point result = *this;
+        result *= scalar;
+        return result;
+    }
+
+    Point operator-() const
+    {
+        Point<ElementType, Size> new_point = {};
+        std::transform(values.begin(), values.end(), new_point.values.begin(),
+                       [](ElementType e) { return -e; });
+
+        return new_point;
+    }
+};
+
 struct Point2D
 {
     float values[2] {};
@@ -165,4 +252,48 @@ struct Point3D
 inline Point2D project_2D(const Point3D& p)
 {
     return { .5f * p.x() - .5f * p.y(), .5f * p.x() + .5f * p.y() + p.z() };
+}
+
+inline void test_generic_points()
+{
+    Point<int, 3> p1 {};
+    Point<int, 3> p2 {};
+
+    p1[0] = 1;
+    p1[1] = 2;
+    p1[2] = 4;
+
+    p2[0] = -1;
+    p2[1] = -1;
+    p2[2] = -1;
+    // p1 = (1, 2, 4)
+    // p2 = (-1, -1, -1)
+
+    p1 += p2;
+    // Expected : p1 = (0, 1, 3)
+    std::cout << "p1 += : " << p1[0] << ", " << p1[1] << ", " << p1[2] << std::endl;
+
+    p1 -= p2;
+    // Expected : p1 = (1, 2, 4)
+    std::cout << "p1 -= : " << p1[0] << ", " << p1[1] << ", " << p1[2] << std::endl;
+
+    p1 *= p2;
+    // Expected : p1 = (-1, -2, -4)
+    std::cout << "p1 *= : " << p1[0] << ", " << p1[1] << ", " << p1[2] << std::endl;
+
+    auto p3 = p1 + p2;
+    // Expected : p3 = (-2, -3, -5)
+    std::cout << "p3 = p1 + p2: " << p3[0] << ", " << p3[1] << ", " << p3[2] << std::endl;
+
+    p3 = p1 - p2;
+    // Expected : p3 = (0, -1, -3)
+    std::cout << "p3 = p1 - p2 : " << p3[0] << ", " << p3[1] << ", " << p3[2] << std::endl;
+
+    p3 = p1 * p2;
+    // Expected : p3 = (1, 2, 4)
+    std::cout << "p3 = p1 * p2 : " << p3[0] << ", " << p3[1] << ", " << p3[2] << std::endl;
+
+    p3 = -p1;
+    // Expected : p3 = (1, 2, 4)
+    std::cout << "p3 = -p1 : " << p3[0] << ", " << p3[1] << ", " << p3[2] << std::endl;
 }
