@@ -78,9 +78,10 @@ void Aircraft::operate_landing_gear()
     }
 }
 
-void Aircraft::add_waypoint(const Waypoint& wp, const bool front)
+template<const bool Front>
+void Aircraft::add_waypoint(const Waypoint& wp)
 {
-    if (front)
+    if constexpr (Front)
     {
         waypoints.push_front(wp);
     }
@@ -110,7 +111,11 @@ bool Aircraft::move()
 
     if (waypoints.empty())
     {
-        waypoints = control.get_instructions(*this);
+        const auto front = false;
+        for (const auto& wp: control.get_instructions(*this))
+        {
+            add_waypoint<front>(wp);
+        }
     }
 
     if (!is_at_terminal)
